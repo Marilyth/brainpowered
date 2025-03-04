@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import Delay from "./Await";
 
 interface TypeWriterProps {
-  speed: number;
+  characterAnimationDuration: number;
+  typeSpeed: number;
   color: string;
   size: string;
 }
@@ -21,20 +22,25 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
     this.state = { animating: [], text: "" };
   }
 
-  async type(text: string): Promise<void> {
+  async typeAsync(text: string): Promise<void> {
     for (const char of text) {
-      await Delay(this.props.speed);
+      await Delay(this.props.typeSpeed);
       this.setState((prev) => ({ animating: [...prev.animating, char] }));
     }
 
-    // Get rid of all the spans after animating.
-    await new Promise((r) => setTimeout(r, 300));
-    this.setState((prev) => ({ animating: [], text: prev.text + text }));
+    this.makeStatic();
+  }
+
+  async makeStatic(): Promise<void> {
+    await Delay(this.props.characterAnimationDuration);
+    this.setState((prev) => ({ text: prev.text + prev.animating.join(""), animating: [] }));
   }
 
   render() {
+    let animationDuration: number = this.props.characterAnimationDuration / 1000;
+
     return (
-        <div style={{ color: this.props.color, fontSize: this.props.size }} className="m-8">
+        <span style={{ color: this.props.color, fontSize: this.props.size }}>
             {
                 // Display the static text.
                 <motion.span key="static-text">
@@ -48,13 +54,13 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
                             key={i}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: animationDuration }}
                         >
-                            {text === " " ? '\u00A0' : text}
+                            {(text === " " ? '\u00A0' : text)}
                         </motion.span>
                 ))
             }
-        </div>
+        </span>
     );
   }
 }
