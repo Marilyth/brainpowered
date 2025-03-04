@@ -9,7 +9,7 @@ export default function Home() {
   const parser = useRef<StringParser>(null);
 
   async function EntryPointAsync(){
-    await parser.current?.parseAsync("Hello world");
+    await parser.current?.parseAsync("Hello world [color;red;asdf] [speed;500;Hello world]");
   }
 
   // Write "Hello world" in the type writer once loaded.
@@ -18,6 +18,6 @@ export default function Home() {
   }, []);
 
   return (
-      <StringParser ref={parser} typeWriterProps={{ characterAnimationDuration: 300, typeSpeed: 50, color: "white", size: "24px" }} />
+      <StringParser ref={parser} typeWriterProps={{ characterAnimationDuration: 300, typeSpeed: 50, color: "white", size: "24px", text: "" }} />
   );
 }

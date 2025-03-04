@@ -13,11 +13,12 @@ interface StringParserProps {
 }
 
 interface StringParserState {
-  writers: Typewriter[];
+  writers: JSX.Element[];
 }
 
 export default class StringParser extends React.Component<StringParserProps, StringParserState> {
   private propsStack: StringParserProps[] = [];
+  private isParsing: boolean = false;
   
   constructor(props: StringParserProps) {
     super(props);
@@ -28,9 +29,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
   render(): JSX.Element {
     return (
       <div className="m-8">
-        {this.state.writers.map((writer, index) => (
-          <Typewriter key={index} {...this.props.typeWriterProps} />
-        ))}
+        {this.state.writers}
       </div>
     );
   }
@@ -53,9 +52,10 @@ export default class StringParser extends React.Component<StringParserProps, Str
 
     for (const char of text) {
       if (char == "[") {
-        await this.addDefaultTypewriterAsync(ongoingText);
-        ongoingText = "";
+        if(depth == 0)
+          await this.addDefaultTypewriterAsync(ongoingText);
 
+        ongoingText = "";
         depth++;
       }
 
@@ -63,8 +63,9 @@ export default class StringParser extends React.Component<StringParserProps, Str
       if (char == "]") {
         depth--;
 
+        console.log(`Depth: ${depth}`);
         if (depth < 0)
-          throw new Error("Mismatched brackets.");
+          throw new Error("Mismatched brackets < 0");
         
         // Bracket ended. Recursively parse the text inside the bracket.
         if (depth == 0){
@@ -75,7 +76,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
     }
 
     if (depth != 0)
-      throw new Error("Mismatched brackets.");
+      throw new Error("Mismatched brackets > 0");
 
     await this.addDefaultTypewriterAsync(ongoingText);
   }
@@ -89,11 +90,13 @@ export default class StringParser extends React.Component<StringParserProps, Str
     if (!text)
       return;
 
-    let newTypeWriter: React.RefObject<Typewriter | null> = useRef<Typewriter>(null);
-    let typewriterNode: any = <Typewriter key={this.state.writers.length} {...props} ref={newTypeWriter} />;
+    this.isParsing = true;
+
+    let typewriterNode: JSX.Element = <Typewriter key={this.state.writers.length} {...props} text={text} onFinished={() => this.isParsing = false} />;
     this.setState((prev) => ({writers: [... prev.writers, typewriterNode]}));
-    
-    await newTypeWriter.current?.typeAsync(text);
+
+    while (this.isParsing)
+      await Delay(50);
   }
 
   /**
@@ -110,11 +113,11 @@ export default class StringParser extends React.Component<StringParserProps, Str
    * @param subString The substring to parse.
    */
   private async handleCommandAsync(subString: string): Promise<void> {
+    console.log(`Handling command: ${subString}`);
     let cleanedString = subString.slice(1, -1);
     let components = cleanedString.split(";");
     let command = components[0].toLowerCase();
     let args = components.slice(1);
-    console.log(parserCommands);
     this.startNesting();
 
     if (command in parserCommands){
@@ -134,7 +137,10 @@ export default class StringParser extends React.Component<StringParserProps, Str
    */
   private startNesting(): void {
     let clone = { ...this.propsStack[this.propsStack.length - 1] };
+    console.log(this.propsStack.length);
     this.propsStack.push(clone);
+    clone.typeWriterProps.color = this.getProps().typeWriterProps.color;
+    console.log(this.propsStack.length);
   }
 
   /**

@@ -9,6 +9,8 @@ export interface TypeWriterProps {
   typeSpeed: number;
   color: string;
   size: string;
+  text: string;
+  onFinished?: () => void;
 }
 
 interface TypeWriterState {
@@ -20,10 +22,7 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
   constructor(props: TypeWriterProps) {
     super(props);
     this.state = { animating: [], text: "" };
-  }
-
-  componentDidMount(): void {
-      console.log("mounted");
+    this.typeAsync(props.text);
   }
 
   async typeAsync(text: string): Promise<void> {
@@ -33,6 +32,7 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
       this.setState((prev) => this.state);
     }
 
+    this.props.onFinished?.call(this);
     this.makeStatic();
   }
 
@@ -47,7 +47,6 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
 
     return (
         <span key="typewriter-span" style={{ color: this.props.color, fontSize: this.props.size }}>
-          test
             {
                 // Display the static text.
                 <motion.span key="static-text">
