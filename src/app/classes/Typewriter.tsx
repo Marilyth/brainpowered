@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { JSX } from "react";
 import { motion } from "framer-motion";
 import Delay from "./Await";
 
-interface TypeWriterProps {
+export interface TypeWriterProps {
   characterAnimationDuration: number;
   typeSpeed: number;
   color: string;
@@ -22,10 +22,15 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
     this.state = { animating: [], text: "" };
   }
 
+  componentDidMount(): void {
+      console.log("mounted");
+  }
+
   async typeAsync(text: string): Promise<void> {
     for (const char of text) {
       await Delay(this.props.typeSpeed);
-      this.setState((prev) => ({ animating: [...prev.animating, char] }));
+      this.state.animating.push(char);
+      this.setState((prev) => this.state);
     }
 
     this.makeStatic();
@@ -33,14 +38,16 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
 
   async makeStatic(): Promise<void> {
     await Delay(this.props.characterAnimationDuration);
-    this.setState((prev) => ({ text: prev.text + prev.animating.join(""), animating: [] }));
+    this.state = { animating: [], text: this.state.text + this.state.animating.join("") };
+    this.setState(this.state);
   }
 
-  render() {
+  render(): JSX.Element {
     let animationDuration: number = this.props.characterAnimationDuration / 1000;
 
     return (
-        <span style={{ color: this.props.color, fontSize: this.props.size }}>
+        <span key="typewriter-span" style={{ color: this.props.color, fontSize: this.props.size }}>
+          test
             {
                 // Display the static text.
                 <motion.span key="static-text">
