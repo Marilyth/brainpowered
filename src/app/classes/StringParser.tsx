@@ -1,12 +1,10 @@
 "use client";
 
 import React, { JSX, useRef } from "react";
-import { motion } from "framer-motion";
 import Delay from "./Await";
 import Typewriter from "./Typewriter";
 import { TypeWriterProps } from "./Typewriter";
 import { parserCommands } from "./Commands";
-import { Children } from "react";
 
 interface StringParserProps {
   typeWriterProps: TypeWriterProps;
@@ -18,7 +16,6 @@ interface StringParserState {
 
 export default class StringParser extends React.Component<StringParserProps, StringParserState> {
   private propsStack: StringParserProps[] = [];
-  private isParsing: boolean = false;
   
   constructor(props: StringParserProps) {
     super(props);
@@ -43,27 +40,58 @@ export default class StringParser extends React.Component<StringParserProps, Str
   }
 
   /**
-   * Parses a string and handles ingrained commands and typewriters.
+   * Adds a typewriter to the list of typewriters and types the text.
+   * @param text The text to add to the typewriter.
+   * @param props The properties of the typewriter.
+   */
+  public async addTypewriterAsync(text: string, props: TypeWriterProps): Promise<void> {
+    if (!text)
+      return;
+
+    let isParsing = true;
+
+    let typewriterNode: JSX.Element = <Typewriter key={this.state.writers.length} {...props} text={text} onFinished={async () => isParsing = false} />;
+    this.state.writers.push(typewriterNode);
+
+    this.setState((prev) => ({writers: [... prev.writers]}));
+
+    // Wait until the typewriter is done typing.
+    while (isParsing)
+      await Delay(10);
+  }
+
+  /**
+   * Adds a typewriter to the list of typewriters and types the text.
+   * This uses the default properties of the parser.
+   * @param text The text to add to the typewriter.
+   */
+  public async addDefaultTypewriterAsync(text: string): Promise<void> {
+    return this.addTypewriterAsync(text, this.getProps().typeWriterProps);
+  }
+
+  /**
+   * Parses a string stream and handles ingrained commands and typewriters.
    * @param text The text to parse.
    */
-  public async parseAsync(text: string): Promise<void> {
+  public async startParsingAsync(text: string): Promise<void> {
     let ongoingText: string = "";
     let depth: number = 0;
 
     for (const char of text) {
       if (char == "[") {
-        if(depth == 0)
+        if(depth == 0 && ongoingText){
           await this.addDefaultTypewriterAsync(ongoingText);
+          ongoingText = "";
+        }
 
-        ongoingText = "";
         depth++;
       }
 
       ongoingText += char;
+      
       if (char == "]") {
         depth--;
 
-        console.log(`Depth: ${depth}`);
         if (depth < 0)
           throw new Error("Mismatched brackets < 0");
         
@@ -82,65 +110,56 @@ export default class StringParser extends React.Component<StringParserProps, Str
   }
 
   /**
-   * Adds a typewriter to the list of typewriters and types the text.
-   * @param text The text to add to the typewriter.
-   * @param props The properties of the typewriter.
-   */
-  public async addTypewriterAsync(text: string, props: TypeWriterProps): Promise<void> {
-    if (!text)
-      return;
-
-    this.isParsing = true;
-
-    let typewriterNode: JSX.Element = <Typewriter key={this.state.writers.length} {...props} text={text} onFinished={() => this.isParsing = false} />;
-    this.setState((prev) => ({writers: [... prev.writers, typewriterNode]}));
-
-    while (this.isParsing)
-      await Delay(50);
-  }
-
-  /**
-   * Adds a typewriter to the list of typewriters and types the text.
-   * This uses the default properties of the parser.
-   * @param text The text to add to the typewriter.
-   */
-  public async addDefaultTypewriterAsync(text: string): Promise<void> {
-    return this.addTypewriterAsync(text, this.getProps().typeWriterProps);
-  }
-
-  /**
    * Handles a command in the form of [command;arg1;arg2;...].
    * @param subString The substring to parse.
    */
   private async handleCommandAsync(subString: string): Promise<void> {
-    console.log(`Handling command: ${subString}`);
     let cleanedString = subString.slice(1, -1);
-    let components = cleanedString.split(";");
-    let command = components[0].toLowerCase();
-    let args = components.slice(1);
-    this.startNesting();
+    let args: string[] = [];
 
-    if (command in parserCommands){
-      let returnValue = parserCommands[command](this, args);
+    // Split the arguments by semicolon. Ignore nested brackets.
+    let currentArg = "";
+    let depth = 0;
+    for (const char of cleanedString) {
+      if (char == "[")
+        depth++;
+      else if (char == "]")
+        depth--;
 
-      if (returnValue instanceof Promise)
-        await returnValue;
+      if (char == ";" && depth == 0) {
+        args.push(currentArg);
+        currentArg = "";
+      }
+      else
+        currentArg += char;
+    }
+
+    if (currentArg || cleanedString.endsWith(";"))
+      args.push(currentArg);
+
+    if (args[0] in parserCommands){
+      this.startNesting();
+
+      try {
+        let returnValue = parserCommands[args[0]](this, args.slice(1));
+
+        if (returnValue instanceof Promise)
+          await returnValue;
+      }
+      finally {
+        this.endNesting();
+      }
     }
     else
-      throw new Error(`Unknown command: ${command}`);
-
-    this.endNesting();
+      throw new Error(`Unknown command: ${args[0]}`);
   }
 
   /**
-   * Pushes a new set of properties onto the stack.
+   * Pushes a new set of properties onto the stack. Commands can modify these properties.
    */
   private startNesting(): void {
-    let clone = { ...this.propsStack[this.propsStack.length - 1] };
-    console.log(this.propsStack.length);
+    let clone = JSON.parse(JSON.stringify(this.getProps()));
     this.propsStack.push(clone);
-    clone.typeWriterProps.color = this.getProps().typeWriterProps.color;
-    console.log(this.propsStack.length);
   }
 
   /**
@@ -148,5 +167,8 @@ export default class StringParser extends React.Component<StringParserProps, Str
    */
   private endNesting(): void {
     this.propsStack.pop();
+
+    if (this.propsStack.length == 0)
+      throw new Error("Ended nesting more often than starting it.");
   }
 }
