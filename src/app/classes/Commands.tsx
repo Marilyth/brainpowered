@@ -1,5 +1,6 @@
 import StringParser from "./StringParser";
 import Delay from "./Await";
+import { parse } from "path";
 
 export const parserCommands: { [key: string]: (parser: StringParser, args: string[]) => Promise<void>|void } = {
     "color": writeColoredAsync,
@@ -7,7 +8,10 @@ export const parserCommands: { [key: string]: (parser: StringParser, args: strin
     "size": writeSizeAsync,
     "pause": pauseAsync,
     "sound": playSoundAsync,
-    "voice": playVoiceAsync
+    "voice": playVoiceAsync,
+    "backgroundcolor": setBackgroundColorAsync,
+    "screenshake": screenShakeAsync,
+    "nowait": fireAndForgetAsync
 };
 
 /**
@@ -120,4 +124,58 @@ async function playSoundAsync(parser: StringParser, args: string[]): Promise<voi
         await parser.startParsingAsync(args[2]);
         await audioPromise;
     }
+}
+
+/**
+ * Changes the background color of the page.
+ * @param parser The parser.
+ * @param args The arguments to the command.
+ * 
+ * args[0] is the color to change to.
+ * 
+ * args[1] the speed of the transition.
+ */
+async function setBackgroundColorAsync(parser: StringParser, args: string[]): Promise<void> {
+    let speed = parseInt(args[1]);
+    let color = args[0];
+
+    document.body.style.transition = `background-color ${speed}ms`;
+    document.body.style.backgroundColor = color;
+
+    await Delay(speed);
+}
+
+/**
+ * Shakes the screen.
+ * @param parser The parser.
+ * @param args The arguments to the command.
+ * 
+ * args[0] is the duration of the shake.
+ */
+async function screenShakeAsync(parser: StringParser, args: string[]): Promise<void> {
+    let extend = parseInt(args[0]);
+    let shakeCount = parseInt(args[1]);
+    let shakeTime = parseInt(args[2]);
+
+    const body = document.body;
+    const originalPosition = body.style.transform;
+
+    for (let i = 0; i < shakeCount; i++) {
+        let x = Math.random() * extend - extend / 2;
+        let y = Math.random() * extend - extend / 2;
+
+        body.style.transform = `translate(${x}px, ${y}px)`;
+        await Delay(shakeTime);
+    }
+
+    body.style.transform = originalPosition;
+}
+
+/**
+ * Executes a command without waiting for it to finish.
+ * @param parser The parser.
+ * @param args The arguments to the command.
+ */
+function fireAndForgetAsync(parser: StringParser, args: string[]): void {
+    parser.startParsingAsync(args[0]);
 }
