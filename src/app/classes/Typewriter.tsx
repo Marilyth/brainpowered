@@ -33,7 +33,7 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
       this.audioCtx = new window.AudioContext();
 
       let gainNode = this.audioCtx.createGain();
-      gainNode.gain.value = this.props.gain;
+      gainNode.gain.value = this.props.gain / 3;
       gainNode.connect(this.audioCtx.destination);
 
       this.oscillator = this.audioCtx.createOscillator();
@@ -129,14 +129,15 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
             {
                 // Display the animating text.
                 this.state.animating.map((text, i) => (
-                        <motion.span
+                        <motion.div
+                            style={{display: "inline-block"}}
                             key={this.state.text.length + i}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            transition={{ duration: animationDuration }}
+                            transition={{duration: animationDuration, ease: "easeOut"}}
                         >
                             {text}
-                        </motion.span>
+                        </motion.div>
                 ))
             }
         </span>
