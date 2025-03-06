@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #464646;
+  font-variant-ligatures: none;
+  font-kerning: none;
 }
 
 @theme inline {
