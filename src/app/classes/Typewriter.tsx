@@ -130,7 +130,7 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
                 // Display the animating text.
                 this.state.animating.map((text, i) => (
                         <motion.span
-                            key={i}
+                            key={this.state.text.length + i}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: animationDuration }}
