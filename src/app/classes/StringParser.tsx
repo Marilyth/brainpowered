@@ -16,6 +16,7 @@ interface StringParserState {
 
 export default class StringParser extends React.Component<StringParserProps, StringParserState> {
   private propsStack: StringParserProps[] = [];
+  private macros = new Map<string, string>();
   
   constructor(props: StringParserProps) {
     super(props);
@@ -74,6 +75,9 @@ export default class StringParser extends React.Component<StringParserProps, Str
    * @param text The text to parse.
    */
   public async startParsingAsync(text: string): Promise<void> {
+    // Handle macros first.
+    text = this.replaceMacros(this.extractMacros(text));
+
     let ongoingText: string = "";
     let depth: number = 0;
 
@@ -107,6 +111,34 @@ export default class StringParser extends React.Component<StringParserProps, Str
       throw new Error("Mismatched brackets > 0");
 
     await this.addDefaultTypewriterAsync(ongoingText);
+  }
+
+  /**
+   * Extracts macros from the text and saves them to the map.
+   * @param text The text to extract macros from.
+   */
+  private extractMacros(text: string): string {
+    let macroRegex = /\$(\w+)\s*=\s*(.+)$/gm;
+
+    for (const match of text.matchAll(macroRegex)) {
+      this.macros.set(match[1], match[2]);
+    }
+
+    text = text.replaceAll(macroRegex, "[DELETE]").replaceAll(/\[DELETE\](?:\r\n|\r|\n)/g, "");
+
+    return text;
+  }
+
+  /**
+   * Replaces all macros in the text with their values.
+   * @param text The text to replace the macros in.
+   */
+  private replaceMacros(text: string): string {
+    for (const [key, value] of this.macros) {
+      text = text.replaceAll(`$\{${key}}`, value);
+    }
+
+    return text;
   }
 
   /**

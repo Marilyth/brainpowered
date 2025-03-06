@@ -119,7 +119,7 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
     let animationDuration: number = this.props.characterAnimationDuration / 1000;
 
     return (
-        <span key="typewriter-span" style={{ color: this.props.color, fontSize: this.props.size }}>
+        <span key="typewriter-span" style={{ color: this.props.color, fontSize: this.props.size, whiteSpace: "pre-wrap" }}>
             {
                 // Display the static text.
                 <motion.span key="static-text">
@@ -135,7 +135,7 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
                             animate={{ opacity: 1 }}
                             transition={{ duration: animationDuration }}
                         >
-                            {(text === " " ? '\u00A0' : text)}
+                            {text}
                         </motion.span>
                 ))
             }
