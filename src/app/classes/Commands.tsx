@@ -1,5 +1,5 @@
 import StringParser from "./StringParser";
-import Delay from "./Await";
+import Delay from "./utility/Await";
 
 export const parserCommands: { [key: string]: (parser: StringParser, args: string[]) => Promise<void>|void } = {
     "color": writeColoredAsync,

@@ -2,7 +2,7 @@
 
 import React, { JSX } from "react";
 import { motion } from "framer-motion";
-import Delay from "./Await";
+import Delay from "./utility/Await";
 
 export interface TypeWriterProps {
   characterAnimationDuration: number;

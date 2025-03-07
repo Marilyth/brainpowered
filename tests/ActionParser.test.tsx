@@ -1,11 +1,15 @@
-import Action from "../src/app/classes/Action";
-import { parseUserInput } from "../src/app/classes/ActionParser";
+import Location from "../src/app/classes/world/base/Location";
+import Action from "../src/app/classes/world/Action";
+import { parseUserInput } from "../src/app/classes/world/ActionParser";
+import { WorldNode } from "@/app/classes/world/base/WorldNode";
 
 describe("parseUserInput", () => {
+    const testWorldNode: WorldNode = new Location("", "", "", "");
+
     const testActions = [
-        new Action("eat|consume|taste bun|bread|dough", () => {}),
-        new Action("drink|sip water|h2o|liquid", () => {}),
-        new Action("run|sprint|jog bathroom|toilet", () => {}),
+        new Action("eat|consume|taste bun|bread|dough", testWorldNode, ""),
+        new Action("drink|sip water|h2o|liquid", testWorldNode, ""),
+        new Action("run|sprint|jog bathroom|toilet", testWorldNode, ""),
     ];
 
     test.each([

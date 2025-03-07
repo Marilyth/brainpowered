@@ -1,10 +1,11 @@
 "use client";
 
 import React, { JSX } from "react";
-import Delay from "./Await";
+import Delay from "./utility/Await";
 import Typewriter from "./Typewriter";
 import { TypeWriterProps } from "./Typewriter";
 import { parserCommands } from "./Commands";
+import Story from "./world/base/Story";
 
 interface StringParserProps {
   typeWriterProps: TypeWriterProps;
@@ -23,6 +24,8 @@ export default class StringParser extends React.Component<StringParserProps, Str
     this.state = { writers: [] };
     this.propsStack.push(props);
   }
+
+  public story: Story | null = null;
 
   render(): JSX.Element {
     return (
@@ -77,6 +80,11 @@ export default class StringParser extends React.Component<StringParserProps, Str
   public async startParsingAsync(text: string): Promise<void> {
     // Handle macros first.
     text = this.replaceMacros(this.extractMacros(text));
+
+    // If we have a story, mark the nodes in the text.
+    if (this.propsStack.length == 1 && this.story != null){
+      text = this.story.markNodesInText(text);
+    }
 
     let ongoingText: string = "";
     let depth: number = 0;
