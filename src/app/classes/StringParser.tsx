@@ -1,6 +1,6 @@
 "use client";
 
-import React, { JSX, useRef } from "react";
+import React, { JSX } from "react";
 import Delay from "./Await";
 import Typewriter from "./Typewriter";
 import { TypeWriterProps } from "./Typewriter";
@@ -51,7 +51,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
 
     let isParsing = true;
 
-    let typewriterNode: JSX.Element = <Typewriter key={this.state.writers.length} {...props} text={text} onFinished={async () => isParsing = false} />;
+    const typewriterNode: JSX.Element = <Typewriter key={this.state.writers.length} {...props} text={text} onFinished={async () => isParsing = false} />;
     this.state.writers.push(typewriterNode);
 
     this.setState((prev) => ({writers: [... prev.writers]}));
@@ -118,7 +118,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
    * @param text The text to extract macros from.
    */
   private extractMacros(text: string): string {
-    let macroRegex = /\$(\w+)\s*=\s*(.+)$/gm;
+    const macroRegex = /\$(\w+)\s*=\s*(.+)$/gm;
 
     for (const match of text.matchAll(macroRegex)) {
       this.macros.set(match[1], match[2]);
@@ -146,8 +146,8 @@ export default class StringParser extends React.Component<StringParserProps, Str
    * @param subString The substring to parse.
    */
   private async handleCommandAsync(subString: string): Promise<void> {
-    let cleanedString = subString.slice(1, -1);
-    let args: string[] = [];
+    const cleanedString = subString.slice(1, -1);
+    const args: string[] = [];
 
     // Split the arguments by semicolon. Ignore nested brackets.
     let currentArg = "";
@@ -173,7 +173,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
       this.startNesting();
 
       try {
-        let returnValue = parserCommands[args[0]](this, args.slice(1));
+        const returnValue = parserCommands[args[0]](this, args.slice(1));
 
         if (returnValue instanceof Promise)
           await returnValue;
@@ -190,7 +190,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
    * Pushes a new set of properties onto the stack. Commands can modify these properties.
    */
   private startNesting(): void {
-    let clone = JSON.parse(JSON.stringify(this.getProps()));
+    const clone = JSON.parse(JSON.stringify(this.getProps()));
     this.propsStack.push(clone);
   }
 

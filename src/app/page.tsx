@@ -7,7 +7,7 @@ export default function Home() {
   const parser = useRef<StringParser>(null);
 
   async function EntryPointAsync(){
-    let text = await fetch("/parserShowcase.txt").then((response) => response.text());
+    const text = await fetch("/parserShowcase.txt").then((response) => response.text());
     await parser.current?.startParsingAsync("Parser Showcase\n\n[pause;1000]");
     await parser.current?.startParsingAsync(text);
   }

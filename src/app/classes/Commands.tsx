@@ -1,6 +1,5 @@
 import StringParser from "./StringParser";
 import Delay from "./Await";
-import { parse } from "path";
 
 export const parserCommands: { [key: string]: (parser: StringParser, args: string[]) => Promise<void>|void } = {
     "color": writeColoredAsync,
@@ -24,8 +23,8 @@ export const parserCommands: { [key: string]: (parser: StringParser, args: strin
  * args[1] is the text to write.
  */
 async function writeColoredAsync(parser: StringParser, args: string[]): Promise<void> {
-    let color = args[0];
-    let text = args[1];
+    const color = args[0];
+    const text = args[1];
     parser.getProps().typeWriterProps.color = color;
 
     await parser.startParsingAsync(text);
@@ -41,8 +40,8 @@ async function writeColoredAsync(parser: StringParser, args: string[]): Promise<
  * args[1] is the text to write.
  */
 async function writeSpeedAsync(parser: StringParser, args: string[]): Promise<void> {
-    let speed = parseInt(args[0]);
-    let text = args[1];
+    const speed = parseInt(args[0]);
+    const text = args[1];
     parser.getProps().typeWriterProps.typeSpeed = speed;
 
     await parser.startParsingAsync(text);
@@ -58,8 +57,8 @@ async function writeSpeedAsync(parser: StringParser, args: string[]): Promise<vo
  * args[1] is the text to write.
  */
 async function writeSizeAsync(parser: StringParser, args: string[]): Promise<void> {
-    let size = args[0];
-    let text = args[1];
+    const size = args[0];
+    const text = args[1];
     parser.getProps().typeWriterProps.size = size;
 
     await parser.startParsingAsync(text);
@@ -77,9 +76,9 @@ async function writeSizeAsync(parser: StringParser, args: string[]): Promise<voi
  * args[2] is the text to type during the voice.
  */
 async function playVoiceAsync(parser: StringParser, args: string[]): Promise<void> {
-    let pitch = parseInt(args[0]);
-    let gain = parseInt(args[1]);
-    let text = args[2];
+    const pitch = parseInt(args[0]);
+    const gain = parseInt(args[1]);
+    const text = args[2];
 
     parser.getProps().typeWriterProps.pitch = pitch;
     parser.getProps().typeWriterProps.gain = gain / 100;
@@ -95,7 +94,7 @@ async function playVoiceAsync(parser: StringParser, args: string[]): Promise<voi
  * args[0] is the time to pause in milliseconds.
  */
 async function pauseAsync(parser: StringParser, args: string[]): Promise<void> {
-    let time = parseInt(args[0]);
+    const time = parseInt(args[0]);
     await Delay(time);
 }
 
@@ -111,16 +110,16 @@ async function pauseAsync(parser: StringParser, args: string[]): Promise<void> {
  * args[2] is a text to type during the sound. If the argument isn't given, the sound plays asynchronously.
  */
 async function playSoundAsync(parser: StringParser, args: string[]): Promise<void> {
-    let sound = args[0];
-    let volume = parseInt(args[1]);
+    const sound = args[0];
+    const volume = parseInt(args[1]);
 
-    let audio = new Audio(sound);
+    const audio = new Audio(sound);
     audio.volume = volume / 100;
     
     audio.play();
 
     if (args.length == 3) {
-        let audioPromise = new Promise<void>((resolve) => audio.onended = () => resolve());
+        const audioPromise = new Promise<void>((resolve) => audio.onended = () => resolve());
         await parser.startParsingAsync(args[2]);
         await audioPromise;
     }
@@ -136,8 +135,8 @@ async function playSoundAsync(parser: StringParser, args: string[]): Promise<voi
  * args[1] the speed of the transition.
  */
 async function setBackgroundColorAsync(parser: StringParser, args: string[]): Promise<void> {
-    let speed = parseInt(args[1]);
-    let color = args[0];
+    const speed = parseInt(args[1]);
+    const color = args[0];
 
     document.body.style.transition = `background-color ${speed}ms`;
     document.body.style.backgroundColor = color;
@@ -153,16 +152,16 @@ async function setBackgroundColorAsync(parser: StringParser, args: string[]): Pr
  * args[0] is the duration of the shake.
  */
 async function screenShakeAsync(parser: StringParser, args: string[]): Promise<void> {
-    let extend = parseInt(args[0]);
-    let shakeCount = parseInt(args[1]);
-    let shakeTime = parseInt(args[2]);
+    const extend = parseInt(args[0]);
+    const shakeCount = parseInt(args[1]);
+    const shakeTime = parseInt(args[2]);
 
     const body = document.body;
     const originalPosition = body.style.transform;
 
     for (let i = 0; i < shakeCount; i++) {
-        let x = Math.random() * extend - extend / 2;
-        let y = Math.random() * extend - extend / 2;
+        const x = Math.random() * extend - extend / 2;
+        const y = Math.random() * extend - extend / 2;
 
         body.style.transform = `translate(${x}px, ${y}px)`;
         await Delay(shakeTime);

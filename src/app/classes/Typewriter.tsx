@@ -32,7 +32,7 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
     if (this.props.pitch > 0) {
       this.audioCtx = new window.AudioContext();
 
-      let gainNode = this.audioCtx.createGain();
+      const gainNode = this.audioCtx.createGain();
       gainNode.gain.value = this.props.gain / 3;
       gainNode.connect(this.audioCtx.destination);
 
@@ -60,8 +60,8 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
       this.setState((prev) => ({ animating: [...prev.animating] }));
       this.makeStatic();
       
-      let isSentenceEnder = [".", "!", "?"].includes(char);
-      let isPause = [",", ";", ":"].includes(char);
+      const isSentenceEnder = [".", "!", "?"].includes(char);
+      const isPause = [",", ";", ":"].includes(char);
       let delay = this.props.typeSpeed;
       
       // Check if char is a sentence ender.
@@ -74,14 +74,14 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
       
       // Handle audio of text.
       if(this.props.pitch > 0){
-        let pitchChar = char.toLowerCase();
+        const pitchChar = char.toLowerCase();
 
         // Play sound if alphanumeric.
         if (/[a-z0-9]/.test(pitchChar)){
           // Determine ascii value of char.
-          let ascii = pitchChar.charCodeAt(0);
-          let pitchShift = 1 + ((ascii % 10 + 1) / 10) / 5;
-          let vowelShift = 1.2;
+          const ascii = pitchChar.charCodeAt(0);
+          const pitchShift = 1 + ((ascii % 10 + 1) / 10) / 5;
+          const vowelShift = 1.2;
 
           // Make vowels higher pitch.
           if (/[aeiou]/.test(char)){
@@ -111,12 +111,12 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
   private async makeStatic(): Promise<void> {
     await Delay(this.props.characterAnimationDuration);
 
-    let character = this.state.animating.shift();
+    const character = this.state.animating.shift();
     this.setState((prev) => ({ animating: [... prev.animating], text: prev.text + character }));
   }
 
   render(): JSX.Element {
-    let animationDuration: number = this.props.characterAnimationDuration / 1000;
+    const animationDuration: number = this.props.characterAnimationDuration / 1000;
 
     return (
         <span key="typewriter-span" style={{ color: this.props.color, fontSize: this.props.size, whiteSpace: "pre-wrap" }}>
