@@ -5,10 +5,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build && node postbuild.js",
     "start": "next start",
     "lint": "next lint",
-    "export": "next export",
     "test": "vitest"
   },
   "dependencies": {
