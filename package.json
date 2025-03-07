@@ -1,5 +1,6 @@
 {
   "name": "mindgames",
+  "homepage": "https://www.mayiscoding.com",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "export": "next export",
     "test": "vitest"
   },
   "dependencies": {
