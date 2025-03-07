@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <div>
       <button onClick={EntryPointAsync}>Start</button>
-      <StringParser ref={parser} typeWriterProps={{ pitch: 0, gain: 1, characterAnimationDuration: 300, typeSpeed: 50, color: "white", size: "24px", text: "" }} />
+      <StringParser ref={parser} typeWriterProps={{ pitch: 0, gain: 1, opacityAnimationDuration: 200, ColorAnimationDuration: 1000, typeSpeed: 50, color: "#FFFFFF", size: "24px", text: "" }} />
     </div>
   );
 }

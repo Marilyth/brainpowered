@@ -5,7 +5,8 @@ import { motion } from "framer-motion";
 import Delay from "./utility/Await";
 
 export interface TypeWriterProps {
-  characterAnimationDuration: number;
+  opacityAnimationDuration: number;
+  ColorAnimationDuration: number;
   typeSpeed: number;
   color: string;
   size: string;
@@ -109,22 +110,23 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
    * Takes the first character from the animating list and adds it to the static text after the animation duration.
    */
   private async makeStatic(): Promise<void> {
-    await Delay(this.props.characterAnimationDuration);
+    await Delay(this.props.opacityAnimationDuration + this.props.ColorAnimationDuration);
 
     const character = this.state.animating.shift();
     this.setState((prev) => ({ animating: [... prev.animating], text: prev.text + character }));
   }
 
   render(): JSX.Element {
-    const animationDuration: number = this.props.characterAnimationDuration / 1000;
+    const opacityDuration: number = this.props.opacityAnimationDuration / 1000;
+    const colorDuration: number = this.props.ColorAnimationDuration / 1000;
 
     return (
-        <span key="typewriter-span" style={{ color: this.props.color, fontSize: this.props.size, whiteSpace: "pre-wrap" }}>
+        <span key="typewriter-span" style={{ fontSize: this.props.size, whiteSpace: "pre-wrap" }}>
             {
                 // Display the static text.
-                <motion.span key="static-text">
+                <span key="static-text" style={{display: "inline-block", color: this.props.color}}>
                     {(this.state.text)}
-                </motion.span>
+                </span>
             }
             {
                 // Display the animating text.
@@ -133,8 +135,11 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
                             style={{display: "inline-block"}}
                             key={this.state.text.length + i}
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{duration: animationDuration, ease: "easeOut"}}
+                            animate={{ opacity: 1, color: this.props.color }}
+                            transition={{
+                              opacity: { duration: opacityDuration, ease: "easeOut" }, 
+                              color: { duration: colorDuration, ease: "easeIn" }
+                            }}
                         >
                             {text}
                         </motion.div>
