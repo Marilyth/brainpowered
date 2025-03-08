@@ -1,18 +1,22 @@
 "use client";
 
 import React, { JSX } from "react";
-import { motion } from "framer-motion";
+import { motion, TargetAndTransition, Transition } from "framer-motion";
 import Delay from "./utility/Await";
 
 export interface TypeWriterProps {
   opacityAnimationDuration: number;
-  ColorAnimationDuration: number;
   typeSpeed: number;
-  color: string;
-  size: string;
   text: string;
   pitch: number;
   gain: number;
+
+  characterStyle?: React.CSSProperties;
+  characterInitial?: TargetAndTransition;
+  characterAnimate?: TargetAndTransition;
+  characterTransition?: Transition;
+
+  blockStyle?: React.CSSProperties;
   onFinished?: () => void;
 }
 
@@ -59,7 +63,6 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
     for (const char of text) {
       this.state.animating.push(char);
       this.setState((prev) => ({ animating: [...prev.animating] }));
-      this.makeStatic();
       
       const isSentenceEnder = [".", "!", "?"].includes(char);
       const isPause = [",", ";", ":"].includes(char);
@@ -107,45 +110,41 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
   }
 
   /**
-   * Takes the first character from the animating list and adds it to the static text after the animation duration.
+   * Takes the first character from the animating list and adds it to the static text.
    */
   private async makeStatic(): Promise<void> {
-    await Delay(this.props.opacityAnimationDuration + this.props.ColorAnimationDuration);
-
     const character = this.state.animating.shift();
     this.setState((prev) => ({ animating: [... prev.animating], text: prev.text + character }));
   }
 
   render(): JSX.Element {
-    const opacityDuration: number = this.props.opacityAnimationDuration / 1000;
-    const colorDuration: number = this.props.ColorAnimationDuration / 1000;
-
     return (
-        <span key="typewriter-span" style={{ fontSize: this.props.size, whiteSpace: "pre-wrap" }}>
-            {
-                // Display the static text.
-                <span key="static-text" style={{display: "inline-block", color: this.props.color}}>
-                    {(this.state.text)}
-                </span>
-            }
-            {
-                // Display the animating text.
-                this.state.animating.map((text, i) => (
-                        <motion.div
-                            style={{display: "inline-block"}}
-                            key={this.state.text.length + i}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1, color: this.props.color }}
-                            transition={{
-                              opacity: { duration: opacityDuration, ease: "easeOut" }, 
-                              color: { duration: colorDuration, ease: "easeIn" }
-                            }}
-                        >
-                            {text}
-                        </motion.div>
-                ))
-            }
-        </span>
+      <span key="typewriter-span" style={{ whiteSpace: "pre-wrap", ...this.props.blockStyle }}>
+        {
+            // Display the static text.
+            <span key="static-text" style={{display: "inline-block" }}>
+                {(this.state.text)}
+            </span>
+        }
+        {
+            // Display the animating text.
+            this.state.animating.map((text, i) => (
+                    <motion.div
+                        onAnimationComplete={() => this.makeStatic()}
+                        style={{display: "inline-block", ...this.props.characterStyle}}
+                        key={this.state.text.length + i}
+                        initial={{ opacity: 0, ...this.props.characterInitial }}
+                        animate={{ opacity: 1, ...this.props.characterAnimate }}
+                        transition={{
+                          duration: 0.3, ease: "easeOut",
+                          ...this.props.characterTransition
+                        }}
+                    >
+                        {text}
+                    </motion.div>
+            ))
+        }
+      </span>
     );
   }
 }

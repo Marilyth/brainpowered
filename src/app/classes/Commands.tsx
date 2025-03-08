@@ -5,6 +5,7 @@ export const parserCommands: { [key: string]: (parser: StringParser, args: strin
     "color": writeColoredAsync,
     "speed": writeSpeedAsync,
     "size": writeSizeAsync,
+    "glow": writeGlowingAsync,
     "pause": pauseAsync,
     "sound": playSoundAsync,
     "voice": playVoiceAsync,
@@ -25,7 +26,29 @@ export const parserCommands: { [key: string]: (parser: StringParser, args: strin
 async function writeColoredAsync(parser: StringParser, args: string[]): Promise<void> {
     const color = args[0];
     const text = args[1];
-    parser.getProps().typeWriterProps.color = color;
+    
+    parser.getProps().typeWriterProps.characterInitial!.color = "#FFFFFF";
+    parser.getProps().typeWriterProps.characterAnimate!.color = color;
+    parser.getProps().typeWriterProps.blockStyle!.color = color;
+
+    (parser.getProps().typeWriterProps.characterTransition as any).color = { duration: 1.5, ease: "easeIn" };
+
+    await parser.startParsingAsync(text);
+}
+
+/**
+ * Adds a glowing effect to the top properties in the stack of the parser.
+ * @param parser The parser to change the color of.
+ * @param args The arguments to the command.
+ * 
+ * args[0] is the text to write.
+ */
+async function writeGlowingAsync(parser: StringParser, args: string[]): Promise<void> {
+    const text = args[0];
+    
+    parser.getProps().typeWriterProps.characterInitial!.textShadow = "0em 0em 0em";
+    parser.getProps().typeWriterProps.characterAnimate!.textShadow = "0em 0em 0.5em";
+    parser.getProps().typeWriterProps.blockStyle!.textShadow = "0em 0em 0.5em";
 
     await parser.startParsingAsync(text);
 }
@@ -59,7 +82,7 @@ async function writeSpeedAsync(parser: StringParser, args: string[]): Promise<vo
 async function writeSizeAsync(parser: StringParser, args: string[]): Promise<void> {
     const size = args[0];
     const text = args[1];
-    parser.getProps().typeWriterProps.size = size;
+    parser.getProps().typeWriterProps.blockStyle!.fontSize = size;
 
     await parser.startParsingAsync(text);
 }
