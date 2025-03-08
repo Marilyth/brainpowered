@@ -11,12 +11,8 @@ export interface TypeWriterProps {
   pitch: number;
   gain: number;
 
-  characterStyle?: React.CSSProperties;
-  characterInitial?: TargetAndTransition;
-  characterAnimate?: TargetAndTransition;
-  characterTransition?: Transition;
-
-  blockStyle?: React.CSSProperties;
+  characterWrappers: ((element: JSX.Element) => JSX.Element)[];
+  blockWrappers: ((element: JSX.Element) => JSX.Element)[];
   onFinished?: () => void;
 }
 
@@ -118,33 +114,35 @@ export default class Typewriter extends React.Component<TypeWriterProps, TypeWri
   }
 
   render(): JSX.Element {
-    return (
-      <span key="typewriter-span" style={{ whiteSpace: "pre-wrap", ...this.props.blockStyle }}>
-        {
-            // Display the static text.
-            <span key="static-text" style={{display: "inline-block" }}>
-                {(this.state.text)}
-            </span>
-        }
-        {
-            // Display the animating text.
-            this.state.animating.map((text, i) => (
-                    <motion.div
-                        onAnimationComplete={() => this.makeStatic()}
-                        style={{display: "inline-block", ...this.props.characterStyle}}
-                        key={this.state.text.length + i}
-                        initial={{ opacity: 0, ...this.props.characterInitial }}
-                        animate={{ opacity: 1, ...this.props.characterAnimate }}
-                        transition={{
-                          duration: 0.3, ease: "easeOut",
-                          ...this.props.characterTransition
-                        }}
-                    >
-                        {text}
-                    </motion.div>
-            ))
-        }
-      </span>
-    );
+    const block =
+    <span key="typewriter-span" style={{ whiteSpace: "pre-wrap" }}>
+    {
+        // Display the static text.
+        <span key="static-text" style={{display: "inline-block" }}>
+            {(this.state.text)}
+        </span>
+    }
+    {
+        // Display the animating text.
+        this.state.animating.map((text, i) => (
+                <motion.div
+                    onAnimationComplete={() => this.makeStatic()}
+                    style={{display: "inline-block", ...this.props.characterStyle}}
+                    key={this.state.text.length + i}
+                    initial={{ opacity: 0, ...this.props.characterInitial }}
+                    animate={{ opacity: 1, ...this.props.characterAnimate }}
+                    transition={{
+                      duration: 0.3, ease: "easeOut",
+                      ...this.props.characterTransition
+                    }}
+                >
+                    {text}
+                </motion.div>
+        ))
+    }
+    </span>;
+
+    for (const wrapper of this.props.blockWrappers)
+      block = wrapper(block);
   }
 }

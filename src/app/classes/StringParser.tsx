@@ -198,7 +198,10 @@ export default class StringParser extends React.Component<StringParserProps, Str
    * Pushes a new set of properties onto the stack. Commands can modify these properties.
    */
   private startNesting(): void {
+    const unclonable = { blockWrappers: [...this.getProps().typeWriterProps.blockWrappers], inlineWrappers: [...this.getProps().typeWriterProps.characterWrappers] };
     const clone = JSON.parse(JSON.stringify(this.getProps()));
+    clone.typeWriterProps = { ...clone.typeWriterProps, ...unclonable };
+
     this.propsStack.push(clone);
   }
 
