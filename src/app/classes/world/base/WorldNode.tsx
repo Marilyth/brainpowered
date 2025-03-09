@@ -1,5 +1,7 @@
 import Action from "../Action";
 import StringParser from "../../StringParser";
+import { Coordinates } from "./Coordinates";
+import { Sound } from "./Sound";
 
 export abstract class WorldNode {
     public name: string;
@@ -8,6 +10,8 @@ export abstract class WorldNode {
     public connections: WorldNode[] = [];
     public actions: Action[] = [];
     public color: string = "#FFFFFF";
+    public coordinates: Coordinates;
+    public sounds: Sound[] = [];
 
     /**
      * Initializes a new instance of the Node class.
@@ -16,10 +20,11 @@ export abstract class WorldNode {
      * @param description The description of the node. I.e. how it is described when checking the node itself.
      * @param actions The actions that can be performed on the node.
      */
-    constructor(name: string, context: string, description: string) {
+    constructor(name: string, context: string, description: string, coordinates: Coordinates) {
         this.name = name;
         this.context = context;
         this.description = description;
+        this.coordinates = coordinates
 
         this.addCheckAction();
     }

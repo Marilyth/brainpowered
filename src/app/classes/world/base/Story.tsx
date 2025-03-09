@@ -1,4 +1,5 @@
 import { Player } from "../Player";
+import { Coordinates } from "./Coordinates";
 import { WorldNode } from "./WorldNode";
 
 export default abstract class Story extends WorldNode {
@@ -6,7 +7,7 @@ export default abstract class Story extends WorldNode {
     public color: string = "#FFFFAA";
 
     constructor(name: string, description: string, longDescription: string, player: Player) {
-        super(name, description, longDescription);
+        super(name, description, longDescription, new Coordinates(0, 0, 0));
 
         this.player = player;
     }
