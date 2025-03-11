@@ -1,6 +1,6 @@
 "use client";
 
-import StringParser from "./classes/StringParser";
+import StringParser from "./components/StringParser";
 import { useRef } from "react";
 import Story from "./classes/world/base/Story";
 import { Demo } from "./classes/world/stories/Demo";

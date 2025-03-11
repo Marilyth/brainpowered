@@ -1,11 +1,10 @@
 "use client";
 
 import React, { JSX } from "react";
-import Delay from "./utility/Await";
-import Typewriter from "./Typewriter";
-import { TypeWriterProps } from "./Typewriter";
+import Delay from "../classes/utility/Await";
+import { Typewriter, TypeWriterProps } from "../components/Typewriter";
 import { parserCommands } from "./Commands";
-import Story from "./world/base/Story";
+import Story from "../classes/world/base/Story";
 
 interface StringParserProps {
   typeWriterProps: TypeWriterProps;
