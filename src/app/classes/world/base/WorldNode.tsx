@@ -1,5 +1,5 @@
 import Action from "../Action";
-import StringParser from "../../StringParser";
+import TypeWriterViewModel from "../../TypeWriterViewModel";
 import { Coordinates } from "./Coordinates";
 import { Sound } from "./Sound";
 
@@ -37,7 +37,7 @@ export abstract class WorldNode {
         this.connections = this.connections.filter((child) => child !== node);
     }
 
-    public checkNode(stringParser: StringParser): Promise<void> {
+    public checkNode(stringParser: TypeWriterViewModel): Promise<void> {
         const descriptions: string[] = [this.description, ...this.connections.map((connection) => connection.context)];
 
         return stringParser.startParsingAsync(descriptions.join(". "));

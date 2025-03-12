@@ -1,4 +1,4 @@
-import StringParser from "../../StringParser";
+import TypeWriterViewModel from "../../TypeWriterViewModel";
 import Action from "../Action";
 import { Coordinates } from "./Coordinates";
 import { WorldNode } from "./WorldNode";
@@ -21,8 +21,8 @@ export default class Location extends WorldNode {
         this.addMoveToAction();
     }
 
-    public moveTowards(stringParser: StringParser) {
-        stringParser.startParsingAsync(this.moveDescription);
+    public moveTowards(stringParser: TypeWriterViewModel) {
+        return stringParser.startParsingAsync(this.moveDescription);
     }
 
     /**

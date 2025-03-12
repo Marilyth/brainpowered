@@ -1,23 +1,29 @@
 "use client";
 
-import StringParser from "./classes/StringParser";
-import { useRef } from "react";
+import { Typewriter } from "./classes/Typewriter";
 import Story from "./classes/world/base/Story";
 import { Demo } from "./classes/world/stories/Demo";
+import TypeWriterViewModel from "./classes/TypeWriterViewModel";
 
 export default function Home() {
-  const parser = useRef<StringParser>(null);
+  const typeWriterViewModel: TypeWriterViewModel = new TypeWriterViewModel({ 
+    opacityAnimationDuration: 0.3, typeSpeed: 50, pitch: 0, gain: 1,
+    characterStyle: { fontSize: "20px", color: "#FFFFFF" },
+    characterInitial: { },
+    characterAnimate: { },
+    characterTransition: { } });
   const story: Story = new Demo();
 
   async function EntryPointAsync(){
-    parser.current!.story = story;
-    await story.checkNode(parser.current!);
-    await story.player.location.checkNode(parser.current!);
-    await story.player.location.moveTowards(parser.current!);
+    typeWriterViewModel.setAudioContext();
+    typeWriterViewModel.story = story;
+    await story.checkNode(typeWriterViewModel);
+    await story.player.location.checkNode(typeWriterViewModel);
+    await story.player.location.moveTowards(typeWriterViewModel);
 
     const text = await fetch("/parserShowcase.txt").then((response) => response.text());
-    await parser.current?.startParsingAsync("\n\n");
-    await parser.current?.startParsingAsync(text);
+    await typeWriterViewModel.startParsingAsync("\n\n");
+    await typeWriterViewModel.startParsingAsync(text);
   }
 
   // async function testAudio() {
@@ -55,7 +61,7 @@ export default function Home() {
   return (
     <div>
       <button onClick={EntryPointAsync}>Start</button>
-      <StringParser ref={parser} typeWriterProps={{ blockStyle: {fontSize: "24px", color: "#FFFFFF"}, characterStyle: {}, characterAnimate: {}, characterInitial: {}, characterTransition: {}, pitch: 0, gain: 1, opacityAnimationDuration: 200, typeSpeed: 50, text: "" }} />
+      <Typewriter viewModel={typeWriterViewModel} />
     </div>
   );
 }

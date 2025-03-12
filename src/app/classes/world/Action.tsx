@@ -1,4 +1,4 @@
-import StringParser from "../StringParser";
+import TypeWriterViewModel from "../TypeWriterViewModel";
 import { WorldNode } from "./base/WorldNode";
 
 export default class Action {
@@ -16,9 +16,9 @@ export default class Action {
      * Triggers the owner's callback with the given string parser.
      * @param stringParser The string parser to trigger the callback with.
      */
-    public triggerAsync(stringParser: StringParser): Promise<void> {
+    public triggerAsync(stringParser: TypeWriterViewModel): Promise<void> {
         const callback = this.owner[this.ownerCallbackName as keyof WorldNode];
-        return (callback as (a: StringParser) => Promise<void>)(stringParser);
+        return (callback as (a: TypeWriterViewModel) => Promise<void>)(stringParser);
     }
 
     /**

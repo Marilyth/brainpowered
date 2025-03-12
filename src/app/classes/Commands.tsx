@@ -1,7 +1,7 @@
-import StringParser from "./StringParser";
+import TypeWriterViewModel from "./TypeWriterViewModel";
 import Delay from "./utility/Await";
 
-export const parserCommands: { [key: string]: (parser: StringParser, args: string[]) => Promise<void>|void } = {
+export const parserCommands: { [key: string]: (parser: TypeWriterViewModel, args: string[]) => Promise<void>|void } = {
     "color": writeColoredAsync,
     "speed": writeSpeedAsync,
     "size": writeSizeAsync,
@@ -23,15 +23,14 @@ export const parserCommands: { [key: string]: (parser: StringParser, args: strin
  * 
  * args[1] is the text to write.
  */
-async function writeColoredAsync(parser: StringParser, args: string[]): Promise<void> {
+async function writeColoredAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const color = args[0];
     const text = args[1];
     
-    parser.getProps().typeWriterProps.characterInitial!.color = "#FFFFFF";
-    parser.getProps().typeWriterProps.characterAnimate!.color = color;
-    parser.getProps().typeWriterProps.blockStyle!.color = color;
+    parser.getProps().characterInitial!.color = "#FFFFFF";
+    parser.getProps().characterAnimate!.color = color;
 
-    (parser.getProps().typeWriterProps.characterTransition as any).color = { duration: 1.5, ease: "easeIn" };
+    (parser.getProps().characterTransition as any).color = { duration: 0.3, ease: "easeIn" };
 
     await parser.startParsingAsync(text);
 }
@@ -43,12 +42,13 @@ async function writeColoredAsync(parser: StringParser, args: string[]): Promise<
  * 
  * args[0] is the text to write.
  */
-async function writeGlowingAsync(parser: StringParser, args: string[]): Promise<void> {
+async function writeGlowingAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const text = args[0];
     
-    parser.getProps().typeWriterProps.characterInitial!.textShadow = "0em 0em 0em";
-    parser.getProps().typeWriterProps.characterAnimate!.textShadow = "0em 0em 0.5em";
-    parser.getProps().typeWriterProps.blockStyle!.textShadow = "0em 0em 0.5em";
+    parser.getProps().characterInitial!.textShadow = "0em 0em 0em";
+    parser.getProps().characterAnimate!.textShadow = "0em 0em 0.5em";
+
+    console.log("glowing: " + text);
 
     await parser.startParsingAsync(text);
 }
@@ -62,10 +62,10 @@ async function writeGlowingAsync(parser: StringParser, args: string[]): Promise<
  * 
  * args[1] is the text to write.
  */
-async function writeSpeedAsync(parser: StringParser, args: string[]): Promise<void> {
+async function writeSpeedAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const speed = parseInt(args[0]);
     const text = args[1];
-    parser.getProps().typeWriterProps.typeSpeed = speed;
+    parser.getProps().typeSpeed = speed;
 
     await parser.startParsingAsync(text);
 }
@@ -79,10 +79,10 @@ async function writeSpeedAsync(parser: StringParser, args: string[]): Promise<vo
  * 
  * args[1] is the text to write.
  */
-async function writeSizeAsync(parser: StringParser, args: string[]): Promise<void> {
+async function writeSizeAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const size = args[0];
     const text = args[1];
-    parser.getProps().typeWriterProps.blockStyle!.fontSize = size;
+    parser.getProps().characterStyle!.fontSize = size;
 
     await parser.startParsingAsync(text);
 }
@@ -98,13 +98,13 @@ async function writeSizeAsync(parser: StringParser, args: string[]): Promise<voi
  * 
  * args[2] is the text to type during the voice.
  */
-async function playVoiceAsync(parser: StringParser, args: string[]): Promise<void> {
+async function playVoiceAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const pitch = parseInt(args[0]);
     const gain = parseInt(args[1]);
     const text = args[2];
 
-    parser.getProps().typeWriterProps.pitch = pitch;
-    parser.getProps().typeWriterProps.gain = gain / 100;
+    parser.getProps().pitch = pitch;
+    parser.getProps().gain = gain / 100;
 
     await parser.startParsingAsync(text);
 }
@@ -116,7 +116,7 @@ async function playVoiceAsync(parser: StringParser, args: string[]): Promise<voi
  * 
  * args[0] is the time to pause in milliseconds.
  */
-async function pauseAsync(parser: StringParser, args: string[]): Promise<void> {
+async function pauseAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const time = parseInt(args[0]);
     await Delay(time);
 }
@@ -132,7 +132,7 @@ async function pauseAsync(parser: StringParser, args: string[]): Promise<void> {
  * 
  * args[2] is a text to type during the sound. If the argument isn't given, the sound plays asynchronously.
  */
-async function playSoundAsync(parser: StringParser, args: string[]): Promise<void> {
+async function playSoundAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const sound = args[0];
     const volume = parseInt(args[1]);
 
@@ -157,7 +157,7 @@ async function playSoundAsync(parser: StringParser, args: string[]): Promise<voi
  * 
  * args[1] the speed of the transition.
  */
-async function setBackgroundColorAsync(parser: StringParser, args: string[]): Promise<void> {
+async function setBackgroundColorAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const speed = parseInt(args[1]);
     const color = args[0];
 
@@ -174,7 +174,7 @@ async function setBackgroundColorAsync(parser: StringParser, args: string[]): Pr
  * 
  * args[0] is the duration of the shake.
  */
-async function screenShakeAsync(parser: StringParser, args: string[]): Promise<void> {
+async function screenShakeAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
     const extend = parseInt(args[0]);
     const shakeCount = parseInt(args[1]);
     const shakeTime = parseInt(args[2]);
@@ -198,6 +198,6 @@ async function screenShakeAsync(parser: StringParser, args: string[]): Promise<v
  * @param parser The parser.
  * @param args The arguments to the command.
  */
-function fireAndForgetAsync(parser: StringParser, args: string[]): void {
+function fireAndForgetAsync(parser: TypeWriterViewModel, args: string[]): void {
     parser.startParsingAsync(args[0]);
 }

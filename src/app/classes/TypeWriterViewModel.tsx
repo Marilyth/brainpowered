@@ -1,76 +1,63 @@
 "use client";
 
-import React, { JSX } from "react";
+import React from "react";
 import Delay from "./utility/Await";
-import Typewriter from "./Typewriter";
-import { TypeWriterProps } from "./Typewriter";
 import { parserCommands } from "./Commands";
 import Story from "./world/base/Story";
+import { makeAutoObservable } from "mobx";
+import { TargetAndTransition, Transition } from "motion/react";
 
-interface StringParserProps {
-  typeWriterProps: TypeWriterProps;
-}
 
-interface StringParserState {
-  writers: JSX.Element[];
-}
-
-export default class StringParser extends React.Component<StringParserProps, StringParserState> {
-  private propsStack: StringParserProps[] = [];
-  private macros = new Map<string, string>();
+export interface TypeWriterProps {
+  opacityAnimationDuration: number;
   
-  constructor(props: StringParserProps) {
-    super(props);
-    this.state = { writers: [] };
+  typeSpeed: number;
+  pitch: number;
+  gain: number;
+
+  characterStyle?: React.CSSProperties;
+  characterInitial?: TargetAndTransition;
+  characterAnimate?: TargetAndTransition;
+  characterTransition?: Transition;
+}
+
+export default class TypeWriterViewModel {
+  public story: Story | null = null;
+  public renderedTextBlocks: [TypeWriterProps, string[]][] = [];
+
+  private propsStack: TypeWriterProps[] = [];
+  private macros = new Map<string, string>();
+  private oscillator: (OscillatorNode | null) = null;
+  private audioCtx: (AudioContext | null) = null;
+  private gainNode: (GainNode | null) = null;
+  
+  constructor(props: TypeWriterProps) {
+    makeAutoObservable(this);
     this.propsStack.push(props);
   }
 
-  public story: Story | null = null;
+  public setAudioContext(){
+    // Add audio oscillator for synthesizing voice.
+    this.audioCtx = new window.AudioContext();
 
-  render(): JSX.Element {
-    return (
-      <div className="m-8">
-        {this.state.writers}
-      </div>
-    );
+    this.gainNode = this.audioCtx.createGain();
+    this.gainNode.gain.value = 0;
+    this.gainNode.connect(this.audioCtx.destination);
+
+    this.oscillator = this.audioCtx.createOscillator();
+    this.oscillator.type = "triangle";
+
+    this.oscillator.connect(this.gainNode);
+    this.oscillator.frequency.setValueAtTime(0, this.audioCtx.currentTime);
+    this.oscillator.start();
   }
 
   /**
    * Gets the properties at the top of the stack.
    * @returns The properties at the top of the stack.
    */
-  public getProps(): StringParserProps {
+  public getProps(): TypeWriterProps {
     return this.propsStack[this.propsStack.length - 1];
-  }
-
-  /**
-   * Adds a typewriter to the list of typewriters and types the text.
-   * @param text The text to add to the typewriter.
-   * @param props The properties of the typewriter.
-   */
-  public async addTypewriterAsync(text: string, props: TypeWriterProps): Promise<void> {
-    if (!text)
-      return;
-
-    let isParsing = true;
-
-    const typewriterNode: JSX.Element = <Typewriter key={this.state.writers.length} {...props} text={text} onFinished={async () => isParsing = false} />;
-    this.state.writers.push(typewriterNode);
-
-    this.setState((prev) => ({writers: [... prev.writers]}));
-
-    // Wait until the typewriter is done typing.
-    while (isParsing)
-      await Delay(10);
-  }
-
-  /**
-   * Adds a typewriter to the list of typewriters and types the text.
-   * This uses the default properties of the parser.
-   * @param text The text to add to the typewriter.
-   */
-  public async addDefaultTypewriterAsync(text: string): Promise<void> {
-    return this.addTypewriterAsync(text, this.getProps().typeWriterProps);
   }
 
   /**
@@ -92,7 +79,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
     for (const char of text) {
       if (char == "[") {
         if(depth == 0 && ongoingText){
-          await this.addDefaultTypewriterAsync(ongoingText);
+          await this.typeAsync(ongoingText);
           ongoingText = "";
         }
 
@@ -118,7 +105,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
     if (depth != 0)
       throw new Error("Mismatched brackets > 0");
 
-    await this.addDefaultTypewriterAsync(ongoingText);
+    await this.typeAsync(ongoingText);
   }
 
   /**
@@ -135,6 +122,56 @@ export default class StringParser extends React.Component<StringParserProps, Str
     text = text.replaceAll(macroRegex, "[DELETE]").replaceAll(/\[DELETE\](?:\r\n|\r|\n)/g, "");
 
     return text;
+  }
+
+  private async typeAsync(text: string): Promise<void> {
+    this.gainNode?.gain.setValueAtTime(this.getProps().gain, this.audioCtx?.currentTime || 0);
+    const propsIndex = this.renderedTextBlocks.push([this.getProps(), []]) - 1;
+
+    for (const char of text) {
+      this.renderedTextBlocks[propsIndex][1].push(char);
+
+      const isSentenceEnder = [".", "!", "?"].includes(char);
+      const isPause = [",", ";", ":"].includes(char);
+      let delay = this.getProps().typeSpeed;
+      
+      // Check if char is a sentence ender.
+      if (isSentenceEnder)
+        delay = this.getProps().typeSpeed * 25;
+
+      // Check if the char is a pause.
+      if (isPause)
+        delay = this.getProps().typeSpeed * 10;
+      
+      // Handle audio of text.
+      if (this.getProps().pitch > 0){
+        const pitchChar = char.toLowerCase();
+
+        // Play sound if alphanumeric.
+        if (/[a-z0-9]/.test(pitchChar)){
+          // Determine ascii value of char.
+          const ascii = pitchChar.charCodeAt(0);
+          const pitchShift = 1 + ((ascii % 10 + 1) / 10) / 5;
+          const vowelShift = 1.2;
+
+          // Make vowels higher pitch.
+          if (/[aeiou]/.test(char)){
+            this.oscillator?.frequency.setValueAtTime(this.getProps().pitch * vowelShift * pitchShift, this.audioCtx?.currentTime || 0);
+          } else {
+            this.oscillator?.frequency.setValueAtTime(this.getProps().pitch * pitchShift, this.audioCtx?.currentTime || 0);
+          }
+        } else if (char != " ") {
+          this.oscillator?.frequency.setValueAtTime(0, this.audioCtx?.currentTime || 0);
+        }
+      }
+      
+      await Delay(delay);
+    }
+
+    if (this.getProps().pitch > 0) {
+      this.oscillator?.frequency.setValueAtTime(0, this.audioCtx?.currentTime || 0);
+      this.gainNode?.gain.setValueAtTime(0, this.audioCtx?.currentTime || 0);
+    }
   }
 
   /**
@@ -154,6 +191,7 @@ export default class StringParser extends React.Component<StringParserProps, Str
    * @param subString The substring to parse.
    */
   private async handleCommandAsync(subString: string): Promise<void> {
+    console.log(subString);
     const cleanedString = subString.slice(1, -1);
     const args: string[] = [];
 
