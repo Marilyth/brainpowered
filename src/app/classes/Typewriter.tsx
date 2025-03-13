@@ -18,7 +18,7 @@ export const Typewriter: React.FC<TypeWriterViewProps> = observer(({ viewModel }
     }
 
     return (
-      <div key="typewriter-span" className="m-8" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+      <div key="typewriter-span" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
         {
             // Display the animating text.
             viewModel.renderedTextBlocks.map((span, i) => (

@@ -7,7 +7,6 @@ import Story from "./world/base/Story";
 import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
 
-
 export interface TypeWriterProps {
   opacityAnimationDuration: number;
   
@@ -24,12 +23,14 @@ export interface TypeWriterProps {
 export default class TypeWriterViewModel {
   public story: Story | null = null;
   public renderedTextBlocks: [TypeWriterProps, string[]][] = [];
+  public isBusy: boolean = false;
 
   private propsStack: TypeWriterProps[] = [];
   private macros = new Map<string, string>();
   private oscillator: (OscillatorNode | null) = null;
   private audioCtx: (AudioContext | null) = null;
   private gainNode: (GainNode | null) = null;
+  private lastCharacter: string = "";
   
   constructor(props: TypeWriterProps) {
     makeAutoObservable(this);
@@ -68,9 +69,16 @@ export default class TypeWriterViewModel {
     // Handle macros first.
     text = this.replaceMacros(this.extractMacros(text));
 
-    // If we have a story, mark the nodes in the text.
-    if (this.propsStack.length == 1 && this.story != null){
-      text = this.story.markNodesInText(text);
+    // Handle text manipulation for the first-level text.
+    if (this.propsStack.length == 1) {
+      this.isBusy = true;
+
+      if (this.story != null)
+        text = this.story.markNodesInText(text);
+      
+      // If missing, add a space before the text if the last character was a non-space character.
+      if (this.lastCharacter && !/^\s/.test(text) && !/\s$/.test(this.lastCharacter))
+        text = " " + text;
     }
 
     let ongoingText: string = "";
@@ -106,6 +114,10 @@ export default class TypeWriterViewModel {
       throw new Error("Mismatched brackets > 0");
 
     await this.typeAsync(ongoingText);
+
+    if (this.propsStack.length == 1){
+      this.isBusy = false;
+    }
   }
 
   /**
@@ -130,6 +142,7 @@ export default class TypeWriterViewModel {
 
     for (const char of text) {
       this.renderedTextBlocks[propsIndex][1].push(char);
+      this.lastCharacter = char;
 
       const isSentenceEnder = [".", "!", "?"].includes(char);
       const isPause = [",", ";", ":"].includes(char);
