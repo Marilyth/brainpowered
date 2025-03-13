@@ -9,7 +9,7 @@ export default function Home() {
   setTheme("dark");
 
   return (
-    <div className="w-screen h-screen">
+    <div className="w-screen h-100dvh">
       <PlayerInterface/>
     </div>
   );
