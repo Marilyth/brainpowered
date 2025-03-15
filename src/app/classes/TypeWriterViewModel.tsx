@@ -121,7 +121,7 @@ export default class TypeWriterViewModel {
   private async typeAsync(text: string): Promise<void> {
     const currentProps = this.getProps();
     const propsIndex = this.renderedTextBlocks.push([currentProps, []]) - 1;
-    const voice: SynthVoice | null = currentProps.volumes ? new SynthVoice(currentProps.pitch, currentProps.volumes) : null;
+    const voice: SynthVoice | null = currentProps.volumes.length > 0 ? new SynthVoice(currentProps.pitch, currentProps.volumes) : null;
 
     for (const char of text) {
       this.renderedTextBlocks[propsIndex][1].push(char);

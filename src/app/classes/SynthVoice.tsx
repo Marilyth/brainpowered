@@ -15,6 +15,8 @@ export class SynthVoice {
         this.overtones = [];
         this.fundamentalFrequency = fundamentalFrequency;
         this.toneVolumes = overtoneGains;
+
+        this.isStopped = true;
     }
 
     /**
@@ -49,7 +51,7 @@ export class SynthVoice {
 
         for (let i = 0; i < this.toneVolumes.length; i++) {
             const oscillator = audioContext.createOscillator();
-            oscillator.type = "triangle";
+            oscillator.type = "sine";
             oscillator.frequency.value = this.fundamentalFrequency * i;
             oscillator.start();
 
@@ -90,20 +92,29 @@ export class SynthVoice {
     public voiceCharacter(character: string) {
         // Play the voice.
         const pitchChar = character.toLowerCase();
-        
+
         // Play sound if alphanumeric.
         if (/[a-z0-9]/.test(pitchChar)){
             this.start();
 
             // Determine ascii value of char.
             const ascii = pitchChar.charCodeAt(0);
-            const pitchShift = 1 + ((ascii % 10 + 1) / 10) / 5;
-            const vowelShift = 1.2;
+            const pitchShift = 1 - ((ascii % 10 + 1) / 100);
 
             // Make vowels higher pitch.
             if (/[aeiou]/.test(pitchChar)) {
-                this.changeFrequency(this.fundamentalFrequency * pitchShift * vowelShift);
+                const vowelPitch: any = {
+                    "a": 1.3,
+                    "e": 1.2,
+                    "i": 1.4,
+                    "o": 1.1,
+                    "u": 1.3,
+                }
+
+                this.changeVolume(1);
+                this.changeFrequency(this.fundamentalFrequency * pitchShift * vowelPitch[pitchChar]);
             } else {
+                this.changeVolume(0.9);
                 this.changeFrequency(this.fundamentalFrequency * pitchShift);
             }
         } else if (pitchChar != " ") {

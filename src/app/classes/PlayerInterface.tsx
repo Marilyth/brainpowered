@@ -44,13 +44,7 @@ export default function PlayerInterface() {
   
       if(currentAction == "start"){
         typeWriterViewModel.current.story = story.current;
-        await story.current.checkNode(typeWriterViewModel.current);
-        await story.current.player.location.checkNode(typeWriterViewModel.current);
-        await story.current.player.location.moveTowards(typeWriterViewModel.current);
-    
-        const text = await fetch("/parserShowcase.txt").then((response) => response.text());
-        await typeWriterViewModel.current.startParsingAsync("\n\n");
-        await typeWriterViewModel.current.startParsingAsync(text);
+        await typeWriterViewModel.current.startParsingAsync("[voice;220;50;This is a sentence test. How long should pauses be? Maybe this long? What about commas, like this one, is that okay?]");
       }
   
       playerInput.current!.focus();
