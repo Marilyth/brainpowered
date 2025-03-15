@@ -26,16 +26,13 @@ enum ViewState {
 export default function PlayerInterface() {
     const [actionText, setActionText] = useState("");
     const [viewState, setViewState] = useState<ViewState>(ViewState.Story);
-    const [switchButtonContent, setSwitchButtonContent] = useState(
-      <div className="inline-flex gap-2 items-center"><FiEdit/>Edit</div>
-    );
 
     const typeWriter = useRef<any>(null);
     const playerInput = useRef<HTMLInputElement>(null);
     const initialized = useRef(false);
     const story = useRef<Story>(new Demo());
     const typeWriterViewModel = useRef(new TypeWriterViewModel({ 
-      opacityAnimationDuration: 0.3, typeSpeed: 50, pitch: 0, gain: 1,
+      opacityAnimationDuration: 0.3, typeSpeed: 50, pitch: 0, volumes: [],
       characterStyle: { fontSize: "20px", color: "#FFFFFF" },
       characterInitial: { },
       characterAnimate: { },
@@ -46,8 +43,6 @@ export default function PlayerInterface() {
       setActionText("");
   
       if(currentAction == "start"){
-        typeWriterViewModel.current.setAudioContext();
-        console.log("Starting the story...");
         typeWriterViewModel.current.story = story.current;
         await story.current.checkNode(typeWriterViewModel.current);
         await story.current.player.location.checkNode(typeWriterViewModel.current);

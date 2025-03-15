@@ -6,13 +6,14 @@ import { parserCommands } from "./Commands";
 import Story from "./world/base/Story";
 import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
+import { SynthVoice } from "./SynthVoice";
 
 export interface TypeWriterProps {
   opacityAnimationDuration: number;
   
   typeSpeed: number;
   pitch: number;
-  gain: number;
+  volumes: number[];
 
   characterStyle?: React.CSSProperties;
   characterInitial?: TargetAndTransition;
@@ -27,30 +28,11 @@ export default class TypeWriterViewModel {
 
   private propsStack: TypeWriterProps[] = [];
   private macros = new Map<string, string>();
-  private oscillator: (OscillatorNode | null) = null;
-  private audioCtx: (AudioContext | null) = null;
-  private gainNode: (GainNode | null) = null;
   private lastCharacter: string = "";
   
   constructor(props: TypeWriterProps) {
     makeAutoObservable(this);
     this.propsStack.push(props);
-  }
-
-  public setAudioContext(){
-    // Add audio oscillator for synthesizing voice.
-    this.audioCtx = new window.AudioContext();
-
-    this.gainNode = this.audioCtx.createGain();
-    this.gainNode.gain.value = 0;
-    this.gainNode.connect(this.audioCtx.destination);
-
-    this.oscillator = this.audioCtx.createOscillator();
-    this.oscillator.type = "triangle";
-
-    this.oscillator.connect(this.gainNode);
-    this.oscillator.frequency.setValueAtTime(0, this.audioCtx.currentTime);
-    this.oscillator.start();
   }
 
   /**
@@ -137,8 +119,9 @@ export default class TypeWriterViewModel {
   }
 
   private async typeAsync(text: string): Promise<void> {
-    this.gainNode?.gain.setValueAtTime(this.getProps().gain, this.audioCtx?.currentTime || 0);
-    const propsIndex = this.renderedTextBlocks.push([this.getProps(), []]) - 1;
+    const currentProps = this.getProps();
+    const propsIndex = this.renderedTextBlocks.push([currentProps, []]) - 1;
+    const voice: SynthVoice | null = currentProps.volumes ? new SynthVoice(currentProps.pitch, currentProps.volumes) : null;
 
     for (const char of text) {
       this.renderedTextBlocks[propsIndex][1].push(char);
@@ -146,45 +129,22 @@ export default class TypeWriterViewModel {
 
       const isSentenceEnder = [".", "!", "?"].includes(char);
       const isPause = [",", ";", ":"].includes(char);
-      let delay = this.getProps().typeSpeed;
+      let delay = currentProps.typeSpeed;
       
       // Check if char is a sentence ender.
       if (isSentenceEnder)
-        delay = this.getProps().typeSpeed * 25;
+        delay = currentProps.typeSpeed * 25;
 
       // Check if the char is a pause.
       if (isPause)
-        delay = this.getProps().typeSpeed * 10;
+        delay = currentProps.typeSpeed * 10;
       
       // Handle audio of text.
-      if (this.getProps().pitch > 0){
-        const pitchChar = char.toLowerCase();
-
-        // Play sound if alphanumeric.
-        if (/[a-z0-9]/.test(pitchChar)){
-          // Determine ascii value of char.
-          const ascii = pitchChar.charCodeAt(0);
-          const pitchShift = 1 + ((ascii % 10 + 1) / 10) / 5;
-          const vowelShift = 1.2;
-
-          // Make vowels higher pitch.
-          if (/[aeiou]/.test(char)){
-            this.oscillator?.frequency.setValueAtTime(this.getProps().pitch * vowelShift * pitchShift, this.audioCtx?.currentTime || 0);
-          } else {
-            this.oscillator?.frequency.setValueAtTime(this.getProps().pitch * pitchShift, this.audioCtx?.currentTime || 0);
-          }
-        } else if (char != " ") {
-          this.oscillator?.frequency.setValueAtTime(0, this.audioCtx?.currentTime || 0);
-        }
-      }
-      
+      voice?.voiceCharacter(char);
       await Delay(delay);
     }
 
-    if (this.getProps().pitch > 0) {
-      this.oscillator?.frequency.setValueAtTime(0, this.audioCtx?.currentTime || 0);
-      this.gainNode?.gain.setValueAtTime(0, this.audioCtx?.currentTime || 0);
-    }
+    voice?.stop();
   }
 
   /**
@@ -204,7 +164,6 @@ export default class TypeWriterViewModel {
    * @param subString The substring to parse.
    */
   private async handleCommandAsync(subString: string): Promise<void> {
-    console.log(subString);
     const cleanedString = subString.slice(1, -1);
     const args: string[] = [];
 

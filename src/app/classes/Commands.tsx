@@ -1,3 +1,4 @@
+import { SynthVoice } from "./SynthVoice";
 import TypeWriterViewModel from "./TypeWriterViewModel";
 import Delay from "./utility/Await";
 
@@ -103,8 +104,14 @@ async function playVoiceAsync(parser: TypeWriterViewModel, args: string[]): Prom
     const gain = parseInt(args[1]);
     const text = args[2];
 
+    const overtones: number[] = [];
+
+    for (let i = 0; i < 5; i++) {
+        overtones.push(gain / (100 * (i + 1)));
+    }
+
     parser.getProps().pitch = pitch;
-    parser.getProps().gain = gain / 100;
+    parser.getProps().volumes = overtones;
 
     await parser.startParsingAsync(text);
 }
