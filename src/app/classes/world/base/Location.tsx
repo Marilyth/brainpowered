@@ -1,6 +1,5 @@
 import TypeWriterViewModel from "../../TypeWriterViewModel";
 import Action from "../Action";
-import { Coordinates } from "./Coordinates";
 import { WorldNode } from "./WorldNode";
 
 export default class Location extends WorldNode {
@@ -14,8 +13,8 @@ export default class Location extends WorldNode {
      * @param description The description of the node. I.e. how it is described when checking the node itself.
      * @param moveDescription The description of the movement action.
      */
-    constructor(name: string, context: string, description: string, moveDescription: string, public coordinates: Coordinates) {
-        super(name, context, description, coordinates);
+    constructor(name: string, context: string, description: string, moveDescription: string) {
+        super(name, context, description);
         this.moveDescription = moveDescription;
 
         this.addMoveToAction();

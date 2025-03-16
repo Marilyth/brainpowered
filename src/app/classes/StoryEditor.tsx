@@ -13,13 +13,16 @@ import Object from "./world/base/Object";
 import { Coordinates } from "./world/base/Coordinates";
 
 export default function StoryEditor() {
-  const testNode = new Object("Table", "", "A wooden table", new Coordinates(0, 0, 0));
+  const testNode = new Object("Table", "", "A wooden table");
+  testNode.coordinates.x = 5;
+  testNode.coordinates.y = 5;
+  testNode.addChild(new Object("Chair", "", "A wooden chair"));
 
   return (
     <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
       <ResizablePanel defaultSize={100}>
         <div className="p-4 h-full">
-          <Canvas />
+          <Canvas rootNode={testNode} />
         </div>
       </ResizablePanel>
       <ResizableHandle />

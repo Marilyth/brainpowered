@@ -2,6 +2,7 @@ import Action from "../Action";
 import TypeWriterViewModel from "../../TypeWriterViewModel";
 import { Coordinates } from "./Coordinates";
 import { Sound } from "./Sound";
+import { Dimensions } from "./Dimensions";
 
 export abstract class WorldNode {
     public name: string;
@@ -10,7 +11,9 @@ export abstract class WorldNode {
     public connections: WorldNode[] = [];
     public actions: Action[] = [];
     public color: string = "#FFFFFF";
-    public coordinates: Coordinates;
+    public coordinates: Coordinates = new Coordinates(0, 0, 0);
+    public dimensions: Dimensions = new Dimensions(1, 1, 1);
+    public image: string = "";
     public sounds: Sound[] = [];
 
     /**
@@ -18,15 +21,28 @@ export abstract class WorldNode {
      * @param name The name of the node.
      * @param context The context of the node. I.e. how it is shortly described when checking the parent.
      * @param description The description of the node. I.e. how it is described when checking the node itself.
-     * @param actions The actions that can be performed on the node.
      */
-    constructor(name: string, context: string, description: string, coordinates: Coordinates) {
+    constructor(name: string, context: string, description: string) {
         this.name = name;
         this.context = context;
         this.description = description;
-        this.coordinates = coordinates
 
         this.addCheckAction();
+    }
+
+    /**
+     * All reachable nodes from this node in hierarchical order.
+     */
+    public traverseNodeTree(): WorldNode[] {
+        const nodes: WorldNode[] = [this];
+
+        for (const connection of this.connections) {
+            for (const child of connection.traverseNodeTree()) {
+                nodes.push(child);
+            }
+        }
+
+        return nodes;
     }
 
     public addChild(node: WorldNode) {
