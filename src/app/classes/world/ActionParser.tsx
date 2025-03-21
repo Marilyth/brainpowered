@@ -1,4 +1,4 @@
-import Action from "./Action";
+import { Action } from "./Action";
 
 /**
  * Returns the best match of an action for the user input.

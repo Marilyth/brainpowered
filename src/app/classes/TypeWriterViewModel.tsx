@@ -8,6 +8,12 @@ import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
 import { SynthVoice } from "./SynthVoice";
 
+export let currentTypeWriter: TypeWriterViewModel;
+
+export function setCurrentTypeWriter(viewModel: TypeWriterViewModel): void {
+  currentTypeWriter = viewModel;
+}
+
 export interface TypeWriterProps {
   opacityAnimationDuration: number;
   
@@ -191,7 +197,7 @@ export default class TypeWriterViewModel {
       this.startNesting();
 
       try {
-        const returnValue = parserCommands[args[0]](this, args.slice(1));
+        const returnValue = parserCommands[args[0]](args.slice(1));
 
         if (returnValue instanceof Promise)
           await returnValue;

@@ -1,20 +1,25 @@
-import Action from "../Action";
-import TypeWriterViewModel from "../../TypeWriterViewModel";
+import { Action, StaticAction, DynamicAction } from "../Action";
 import { Coordinates } from "./Coordinates";
 import { Sound } from "./Sound";
 import { Dimensions } from "./Dimensions";
+import { Attribute } from "./Attribute";
+import { currentTypeWriter } from "../../TypeWriterViewModel";
+
 
 export abstract class WorldNode {
     public name: string;
     public context: string;
     public description: string;
-    public connections: WorldNode[] = [];
-    public actions: Action[] = [];
     public color: string = "#FFFFFF";
+    public image: string = "";
+
+    public attributes: Attribute[] = [];
+    public children: WorldNode[] = [];
+    public actions: Action[] = [];
+    public sounds: Sound[] = [];
+    public parent: WorldNode | null = null;
     public coordinates: Coordinates = new Coordinates(0, 0, 0);
     public dimensions: Dimensions = new Dimensions(1, 1, 1);
-    public image: string = "";
-    public sounds: Sound[] = [];
 
     /**
      * Initializes a new instance of the Node class.
@@ -36,8 +41,8 @@ export abstract class WorldNode {
     public traverseNodeTree(): WorldNode[] {
         const nodes: WorldNode[] = [this];
 
-        for (const connection of this.connections) {
-            for (const child of connection.traverseNodeTree()) {
+        for (const link of this.children) {
+            for (const child of link.traverseNodeTree()) {
                 nodes.push(child);
             }
         }
@@ -46,17 +51,22 @@ export abstract class WorldNode {
     }
 
     public addChild(node: WorldNode) {
-        this.connections.push(node);
+        this.children.push(node);
+        node.parent = this;
+
+        // Add the check action to the new child.
+        node.addCheckAction();
     }
 
     public removeChild(node: WorldNode) {
-        this.connections = this.connections.filter((child) => child !== node);
+        this.children = this.children.filter((child) => child !== node);
+        node.parent = null;
     }
 
-    public checkNode(stringParser: TypeWriterViewModel): Promise<void> {
-        const descriptions: string[] = [this.description, ...this.connections.map((connection) => connection.context)];
+    private async writeCheckString() {
+        const descriptions: string[] = [this.description, ...this.children.map((connection) => connection.context)];
 
-        return stringParser.startParsingAsync(descriptions.join(". "));
+        await currentTypeWriter.startParsingAsync(descriptions.join(" "));
     }
 
     /**
@@ -67,7 +77,7 @@ export abstract class WorldNode {
         const checkSynonyms: string[] = ["Inspect", "Assess", "Analyze", "Probe", "Scan", "Investigate", "Survey", "Examine", "Check", "Explore", "Look"];
         const checkActionCommand: string = checkSynonyms.join("|");
 
-        this.actions.push(new Action(checkActionCommand, this, this.checkNode.name));
+        this.actions.push(new DynamicAction(checkActionCommand, this.writeCheckString.bind(this)));
     }
 
     private removeAction(action: Action) {

@@ -1,10 +1,10 @@
-import Location from "../src/app/classes/world/base/Location";
+import TravelNode from "../src/app/classes/world/base/TravelNode";
 import Action from "../src/app/classes/world/Action";
 import { parseUserInput } from "../src/app/classes/world/ActionParser";
 import { WorldNode } from "@/app/classes/world/base/WorldNode";
 
 describe("parseUserInput", () => {
-    const testWorldNode: WorldNode = new Location("", "", "", "");
+    const testWorldNode: WorldNode = new TravelNode("", "", "", "");
 
     const testActions = [
         new Action("eat|consume|taste bun|bread|dough", testWorldNode, ""),

@@ -1,25 +1,18 @@
-import TypeWriterViewModel from "../TypeWriterViewModel";
-import { WorldNode } from "./base/WorldNode";
+import { currentTypeWriter } from "../TypeWriterViewModel";
+import { events } from "./base/Events";
 
-export default class Action {
-    constructor(actionString: string, owner: WorldNode, ownerCallbackName: string) {
-        this.actionString = actionString;
-        this.owner = owner;
-        this.ownerCallbackName = ownerCallbackName;
+export abstract class Action {
+    constructor(actionName: string) {
+        this.eventName = actionName;
     }
 
-    public actionString: string;
-    public owner: WorldNode;
-    public ownerCallbackName: string;
+    public eventName: string;
 
     /**
      * Triggers the owner's callback with the given string parser.
      * @param stringParser The string parser to trigger the callback with.
      */
-    public triggerAsync(stringParser: TypeWriterViewModel): Promise<void> {
-        const callback = this.owner[this.ownerCallbackName as keyof WorldNode];
-        return (callback as (a: TypeWriterViewModel) => Promise<void>)(stringParser);
-    }
+    public abstract triggerAsync(): Promise<void>;
 
     /**
      * Checks if the user input matches the command and returns the exact matched tokens.
@@ -27,7 +20,7 @@ export default class Action {
      * @returns The exact match of the command, picking out aliases, or null if no match.
      */
     public matches(tokens: string[]): string[] | null {
-        const commandTokens: string[] = this.actionString.toLowerCase().split(" ");
+        const commandTokens: string[] = this.eventName.toLowerCase().split(" ");
         const matchIndices: number[] = [];
         const matchTokens: string[] = [];
         
@@ -63,5 +56,39 @@ export default class Action {
         // But for now, we'll just check if they're all present.
 
         return matchTokens;
+    }
+}
+
+export class DynamicAction extends Action {
+    constructor(actionName: string, callback: () => Promise<void>) {
+        super(actionName);
+        this.callback = callback;
+    }
+
+    public callback: () => Promise<void>;
+
+    public async triggerAsync(): Promise<void> {
+        events.emit(`action_triggering:${this.eventName}`);
+
+        await this.callback();
+
+        events.emit(`action_triggered:${this.eventName}`);
+    }
+}
+
+export class StaticAction extends Action{
+    constructor (actionName: string, outputText: string) {
+        super(actionName);
+        this.outputText = outputText;
+    }
+    
+    public outputText: string;
+
+    public async triggerAsync(): Promise<void> {
+        events.emit(`action_triggering:${this.eventName}`);
+
+        await currentTypeWriter.startParsingAsync(this.outputText);
+
+        events.emit(`action_triggered:${this.eventName}`);
     }
 }

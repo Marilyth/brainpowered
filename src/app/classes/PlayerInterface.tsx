@@ -5,7 +5,7 @@ import { FiSend, FiEdit, FiPlay } from 'react-icons/fi';
 import React from "react";
 import { Typewriter } from "./Typewriter";
 import Story from "./world/base/Story";
-import { Demo } from "./world/stories/Demo/Demo";
+import { demo } from "./world/stories/Demo/Demo";
 import TypeWriterViewModel from "./TypeWriterViewModel";
 import {
   Card,
@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import StoryEditor from "./StoryEditor";
+import { setCurrentTypeWriter } from "./TypeWriterViewModel";
 
 enum ViewState {
   Story,
@@ -27,10 +28,9 @@ export default function PlayerInterface() {
     const [actionText, setActionText] = useState("");
     const [viewState, setViewState] = useState<ViewState>(ViewState.Story);
 
-    const typeWriter = useRef<any>(null);
     const playerInput = useRef<HTMLInputElement>(null);
     const initialized = useRef(false);
-    const story = useRef<Story>(new Demo());
+    const story = useRef<Story>(demo);
     const typeWriterViewModel = useRef(new TypeWriterViewModel({ 
       opacityAnimationDuration: 0.3, typeSpeed: 50, pitch: 0, volumes: [],
       characterStyle: { fontSize: "20px", color: "#FFFFFF" },
@@ -42,10 +42,8 @@ export default function PlayerInterface() {
       const currentAction = actionText;
       setActionText("");
   
-      if(currentAction == "start"){
-        typeWriterViewModel.current.story = story.current;
-        await typeWriterViewModel.current.startParsingAsync("[voice;220;50;This is a sentence test. How long should pauses be? Maybe this long? What about commas, like this one, is that okay?]");
-      }
+      story.current.player.performActionAsync(currentAction);
+      // await typeWriterViewModel.current.startParsingAsync("[voice;220;50;This is a sentence test. How long should pauses be? Maybe this long? What about commas, like this one, is that okay?]");
   
       playerInput.current!.focus();
     }
@@ -55,6 +53,9 @@ export default function PlayerInterface() {
 
       initialized.current = true;
       typeWriterViewModel.current.startParsingAsync("Enter [color;orange;start] to start the story.");
+      setCurrentTypeWriter(typeWriterViewModel.current);
+      typeWriterViewModel.current.story = story.current;
+      
       playerInput.current!.focus();
     }, [typeWriterViewModel]);
   

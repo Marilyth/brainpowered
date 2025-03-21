@@ -1,7 +1,8 @@
+import TypeWriterViewModel from "../../TypeWriterViewModel";
 import { Player } from "../Player";
 import { WorldNode } from "./WorldNode";
 
-export default abstract class Story extends WorldNode {
+export default class Story extends WorldNode {
     public player: Player;
     public color: string = "#FFFFAA";
 
@@ -16,7 +17,7 @@ export default abstract class Story extends WorldNode {
      * @param text The text to replace the names in.
      */
     public markNodesInText(text: string): string {
-        const objects: WorldNode[] = [this, this.player.location, ...this.player.location.connections];
+        const objects: WorldNode[] = [this, this.player.parent!, ...this.player.parent!.children];
         for (const object of objects) {
             text = text.replace(new RegExp(`(${object.name.toLowerCase()})`, "g"), `[color;${object.color};$1]`);
         }

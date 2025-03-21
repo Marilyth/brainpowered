@@ -1,8 +1,8 @@
-import { SynthVoice } from "./SynthVoice";
-import TypeWriterViewModel from "./TypeWriterViewModel";
+import { currentTypeWriter } from "./TypeWriterViewModel";
 import Delay from "./utility/Await";
+import { events } from "./world/base/Events";
 
-export const parserCommands: { [key: string]: (parser: TypeWriterViewModel, args: string[]) => Promise<void>|void } = {
+export const parserCommands: { [key: string]: (args: string[]) => Promise<void>|void } = {
     "color": writeColoredAsync,
     "speed": writeSpeedAsync,
     "size": writeSizeAsync,
@@ -12,85 +12,79 @@ export const parserCommands: { [key: string]: (parser: TypeWriterViewModel, args
     "voice": playVoiceAsync,
     "backgroundcolor": setBackgroundColorAsync,
     "screenshake": screenShakeAsync,
-    "nowait": fireAndForgetAsync
+    "nowait": fireAndForgetAsync,
+    "event": emitEventAsync
 };
 
 /**
  * Changes the color of the top properties in the stack of the parser.
- * @param parser The parser to change the color of.
  * @param args The arguments to the command.
  * 
  * args[0] is the color to change to.
  * 
  * args[1] is the text to write.
  */
-async function writeColoredAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function writeColoredAsync(args: string[]): Promise<void> {
     const color = args[0];
     const text = args[1];
     
-    parser.getProps().characterInitial!.color = "#FFFFFF";
-    parser.getProps().characterAnimate!.color = color;
+    currentTypeWriter.getProps().characterInitial!.color = "#FFFFFF";
+    currentTypeWriter.getProps().characterAnimate!.color = color;
 
-    (parser.getProps().characterTransition as any).color = { duration: 0.3, ease: "easeIn" };
+    (currentTypeWriter.getProps().characterTransition as any).color = { duration: 0.3, ease: "easeIn" };
 
-    await parser.startParsingAsync(text);
+    await currentTypeWriter.startParsingAsync(text);
 }
 
 /**
  * Adds a glowing effect to the top properties in the stack of the parser.
- * @param parser The parser to change the color of.
  * @param args The arguments to the command.
  * 
  * args[0] is the text to write.
  */
-async function writeGlowingAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function writeGlowingAsync(args: string[]): Promise<void> {
     const text = args[0];
     
-    parser.getProps().characterInitial!.textShadow = "0em 0em 0em";
-    parser.getProps().characterAnimate!.textShadow = "0em 0em 0.5em";
+    currentTypeWriter.getProps().characterInitial!.textShadow = "0em 0em 0em";
+    currentTypeWriter.getProps().characterAnimate!.textShadow = "0em 0em 0.5em";
 
-    console.log("glowing: " + text);
-
-    await parser.startParsingAsync(text);
+    await currentTypeWriter.startParsingAsync(text);
 }
 
 /**
  * Changes the speed of the top properties in the stack of the parser.
- * @param parser The parser to change the speed of.
  * @param args The arguments to the command.
  * 
  * args[0] is the speed to change to.
  * 
  * args[1] is the text to write.
  */
-async function writeSpeedAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function writeSpeedAsync(args: string[]): Promise<void> {
     const speed = parseInt(args[0]);
     const text = args[1];
-    parser.getProps().typeSpeed = speed;
+    currentTypeWriter.getProps().typeSpeed = speed;
 
-    await parser.startParsingAsync(text);
+    await currentTypeWriter.startParsingAsync(text);
 }
 
 /**
  * Changes the size of the top properties in the stack of the parser.
- * @param parser The parser to change the size of.
  * @param args The arguments to the command.
  * 
  * args[0] is the size to change to.
  * 
  * args[1] is the text to write.
  */
-async function writeSizeAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function writeSizeAsync(args: string[]): Promise<void> {
     const size = args[0];
     const text = args[1];
-    parser.getProps().characterStyle!.fontSize = size;
+    currentTypeWriter.getProps().characterStyle!.fontSize = size;
 
-    await parser.startParsingAsync(text);
+    await currentTypeWriter.startParsingAsync(text);
 }
 
 /**
  * Plays a voice with the given pitch, gain, and text.
- * @param parser The parser to play the voice on.
  * @param args The arguments to the command.
  * 
  * args[0] is the pitch of the voice.
@@ -99,7 +93,7 @@ async function writeSizeAsync(parser: TypeWriterViewModel, args: string[]): Prom
  * 
  * args[2] is the text to type during the voice.
  */
-async function playVoiceAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function playVoiceAsync(args: string[]): Promise<void> {
     const pitch = parseInt(args[0]);
     const gain = parseInt(args[1]);
     const text = args[2];
@@ -110,27 +104,25 @@ async function playVoiceAsync(parser: TypeWriterViewModel, args: string[]): Prom
         overtones.push(gain / (100 * (i + 1)));
     }
 
-    parser.getProps().pitch = pitch;
-    parser.getProps().volumes = overtones;
+    currentTypeWriter.getProps().pitch = pitch;
+    currentTypeWriter.getProps().volumes = overtones;
 
-    await parser.startParsingAsync(text);
+    await currentTypeWriter.startParsingAsync(text);
 }
 
 /**
  * Pauses the parser for a given amount of time.
- * @param parser The parser to pause.
  * @param args The arguments to the command.
  * 
  * args[0] is the time to pause in milliseconds.
  */
-async function pauseAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function pauseAsync(args: string[]): Promise<void> {
     const time = parseInt(args[0]);
     await Delay(time);
 }
 
 /**
  * Plays a sound from the given URL.
- * @param parser The parser.
  * @param args The arguments to the command.
  * 
  * args[0] is the URL of the sound to play.
@@ -139,7 +131,7 @@ async function pauseAsync(parser: TypeWriterViewModel, args: string[]): Promise<
  * 
  * args[2] is a text to type during the sound. If the argument isn't given, the sound plays asynchronously.
  */
-async function playSoundAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function playSoundAsync(args: string[]): Promise<void> {
     const sound = args[0];
     const volume = parseInt(args[1]);
 
@@ -150,21 +142,20 @@ async function playSoundAsync(parser: TypeWriterViewModel, args: string[]): Prom
 
     if (args.length == 3) {
         const audioPromise = new Promise<void>((resolve) => audio.onended = () => resolve());
-        await parser.startParsingAsync(args[2]);
+        await currentTypeWriter.startParsingAsync(args[2]);
         await audioPromise;
     }
 }
 
 /**
  * Changes the background color of the page.
- * @param parser The parser.
  * @param args The arguments to the command.
  * 
  * args[0] is the color to change to.
  * 
  * args[1] the speed of the transition.
  */
-async function setBackgroundColorAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function setBackgroundColorAsync(args: string[]): Promise<void> {
     const speed = parseInt(args[1]);
     const color = args[0];
 
@@ -176,12 +167,11 @@ async function setBackgroundColorAsync(parser: TypeWriterViewModel, args: string
 
 /**
  * Shakes the screen.
- * @param parser The parser.
  * @param args The arguments to the command.
  * 
  * args[0] is the duration of the shake.
  */
-async function screenShakeAsync(parser: TypeWriterViewModel, args: string[]): Promise<void> {
+async function screenShakeAsync(args: string[]): Promise<void> {
     const extend = parseInt(args[0]);
     const shakeCount = parseInt(args[1]);
     const shakeTime = parseInt(args[2]);
@@ -202,9 +192,20 @@ async function screenShakeAsync(parser: TypeWriterViewModel, args: string[]): Pr
 
 /**
  * Executes a command without waiting for it to finish.
- * @param parser The parser.
  * @param args The arguments to the command.
  */
-function fireAndForgetAsync(parser: TypeWriterViewModel, args: string[]): void {
-    parser.startParsingAsync(args[0]);
+function fireAndForgetAsync(args: string[]): void {
+    currentTypeWriter.startParsingAsync(args[0]);
+}
+
+/**
+ * Emits an event with the given arguments.
+ * @param args The arguments to the command.
+ */
+function emitEventAsync(args: string[]): Promise<void> {
+    const eventName = args[0];
+    const eventArgs = args.slice(1);
+    events.emit(`event_triggered:${eventName}`, eventArgs);
+
+    return Promise.resolve();
 }
