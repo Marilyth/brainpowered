@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import PlayerInterface from "./classes/PlayerInterface";
+import PlayerInterface from "./classes/views/PlayerInterface";
 import { useTheme } from "next-themes";
 
 export default function Home() {

@@ -1,7 +1,7 @@
-import TravelNode from "../src/app/classes/world/base/TravelNode";
-import Action from "../src/app/classes/world/Action";
-import { parseUserInput } from "../src/app/classes/world/ActionParser";
-import { WorldNode } from "@/app/classes/world/base/WorldNode";
+import TravelNode from "../src/app/classes/models/world/base/TravelNode";
+import Action from "../src/app/classes/models/world/Action";
+import { parseUserInput } from "../src/app/classes/models/world/ActionParser";
+import { WorldNode } from "@/app/classes/models/world/base/WorldNode";
 
 describe("parseUserInput", () => {
     const testWorldNode: WorldNode = new TravelNode("", "", "", "");
