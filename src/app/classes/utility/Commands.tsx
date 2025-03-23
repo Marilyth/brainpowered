@@ -12,8 +12,9 @@ export const parserCommands: { [key: string]: (args: string[]) => Promise<void>|
     "voice": playVoiceAsync,
     "backgroundcolor": setBackgroundColorAsync,
     "screenshake": screenShakeAsync,
-    "nowait": fireAndForgetAsync,
-    "event": emitEventAsync
+    "async": fireAndForgetAsync,
+    "event": emitEventAsync,
+    "script": executeCodeAsync,
 };
 
 /**
@@ -208,4 +209,15 @@ function emitEventAsync(args: string[]): Promise<void> {
     events.emit(`event_triggered:${eventName}`, eventArgs);
 
     return Promise.resolve();
+}
+
+/**
+ * Executes a script with the given arguments.
+ * @param args The code to execute.
+ */
+async function executeCodeAsync(args: string[]): Promise<void> {
+    const code = args.join(";");
+
+    const func = new Function("context", `"use strict"; return (async function() { ${code} }).call(context);`);
+    await func.call(null, { currentTypeWriter, events });
 }

@@ -21,6 +21,7 @@ interface CanvasProps {
 }
 
 const Canvas: React.FC<CanvasProps> = observer(({ rootNode, onSelectionChanged }) => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
 
@@ -31,10 +32,17 @@ const Canvas: React.FC<CanvasProps> = observer(({ rootNode, onSelectionChanged }
         y: prev.y + e.movementY,
       }));
     }
+
+    const referenceRect = e.currentTarget.getBoundingClientRect();
+
+    const relativeX = ((e.clientX - e.currentTarget.getBoundingClientRect().left - offset.x) / scale) / meterToHtmlScale;
+    const relativeY = ((e.clientY - e.currentTarget.getBoundingClientRect().top - offset.y) / scale) / meterToHtmlScale;
+
+    setMousePosition({ x: relativeX, y: relativeY  });
   };
 
   const handleWheel = (e: React.WheelEvent) => {
-    setScale((prev) => Math.max(0.1, prev + (e.deltaY > 0 ? -0.1 : 0.1)));
+    setScale((prev) => prev + (prev / 10) * (e.deltaY > 0 ? -1 : 1));
   };
 
   return (
@@ -46,17 +54,25 @@ const Canvas: React.FC<CanvasProps> = observer(({ rootNode, onSelectionChanged }
                 <div
                   className="w-full h-full relative"
                   style={{
-                      transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-                      transformOrigin: 'center',
+                      transform: `translate(${offset.x}px, ${offset.y}px)`,
                   }}
                   >
-                  <div className="absolute"
-                      style={{ left: rootNode.model.coordinates.x * meterToHtmlScale,
-                                top: rootNode.model.coordinates.y * meterToHtmlScale,
-                                width: rootNode.model.dimensions.width * meterToHtmlScale,
-                                height: rootNode.model.dimensions.depth * meterToHtmlScale }}>
-                    <CanvasObject viewModel={rootNode} onSelectionChanged={onSelectionChanged} />
-                  </div>
+                    <div
+                      className="w-full h-full relative"
+                      style={{
+                          transform: `scale(${scale})`,
+                          transformOrigin: 'top left',
+                          transition: '0.1s'
+                      }}
+                      >
+                      <div className="absolute"
+                          style={{ left: rootNode.coordinates.x * meterToHtmlScale,
+                                    top: rootNode.coordinates.y * meterToHtmlScale,
+                                    width: rootNode.dimensions.width * meterToHtmlScale,
+                                    height: rootNode.dimensions.depth * meterToHtmlScale }}>
+                        <CanvasObject viewModel={rootNode} onSelectionChanged={onSelectionChanged} />
+                      </div>
+                    </div>
                 </div>
             </ContextMenuTrigger>
             <ContextMenuContent>
@@ -70,7 +86,7 @@ const Canvas: React.FC<CanvasProps> = observer(({ rootNode, onSelectionChanged }
         </div>
 
         <div className="absolute bottom-0 left-0 p-2 bg-[#00000080] rounded-tr-lg">
-          <Label>Position:</Label>
+          <Label>Position: {mousePosition.x.toFixed(2)}x {mousePosition.y.toFixed(2)}y</Label>
           <Label>Scale: {scale.toFixed(2)}x</Label>
         </div>
 

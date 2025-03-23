@@ -28,20 +28,22 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                 <Card>
                     <CardContent className="space-y-4">
                         <Label>Name</Label>
-                        <Input placeholder="Table..." value={viewModel.model.name} onChange={(v) => viewModel.model.name = v.target.value} />
+                        <Input placeholder="Table" value={viewModel.name} onChange={(v) => viewModel.name = v.target.value} />
                         <Label>Description</Label>
-                        <Input placeholder="A wooden table..." value={viewModel.model.description} onChange={(v) => viewModel.model.description = v.target.value} />
+                        <Input placeholder="You see a wooden table. It's surface showing the marks of time." value={viewModel.description} onChange={(v) => viewModel.description = v.target.value} />
+                        <Label>Context</Label>
+                        <Input placeholder="A wooden table can be seen in the corner of the room." value={viewModel.context} onChange={(v) => viewModel.context = v.target.value} />
                         <Label>Dimensions (m)</Label>
                         <div className="grid grid-cols-3 gap-4">
-                            <Input type="number" placeholder="Width" value={viewModel.model.dimensions.width} onChange={(v) => viewModel.model.dimensions.width = v.target.valueAsNumber} />
-                            <Input type="number" placeholder="Depth" value={viewModel.model.dimensions.depth} onChange={(v) => viewModel.model.dimensions.depth = v.target.valueAsNumber} />
-                            <Input type="number" placeholder="Height" value={viewModel.model.dimensions.height} onChange={(v) => viewModel.model.dimensions.height = v.target.valueAsNumber} />
+                            <Input type="number" min={0} placeholder="Width" value={viewModel.dimensions.width} onChange={(v) => viewModel.dimensions.width = v.target.valueAsNumber} />
+                            <Input type="number" min={0} placeholder="Depth" value={viewModel.dimensions.depth} onChange={(v) => viewModel.dimensions.depth = v.target.valueAsNumber} />
+                            <Input type="number" min={0} placeholder="Height" value={viewModel.dimensions.height} onChange={(v) => viewModel.dimensions.height = v.target.valueAsNumber} />
                         </div>
                         <Label>Location</Label>
                         <div className="grid grid-cols-3 gap-4">
-                            <Input type="number" placeholder="X" value={viewModel.model.coordinates.x} onChange={(v) => viewModel.model.coordinates.x = v.target.valueAsNumber} />
-                            <Input type="number" placeholder="Y" value={viewModel.model.coordinates.y} onChange={(v) => viewModel.model.coordinates.y = v.target.valueAsNumber} />
-                            <Input type="number" placeholder="Z" value={viewModel.model.coordinates.z} onChange={(v) => viewModel.model.coordinates.z = v.target.valueAsNumber} />
+                            <Input type="number" placeholder="X" value={viewModel.coordinates.x} onChange={(v) => viewModel.coordinates.x = v.target.valueAsNumber} />
+                            <Input type="number" placeholder="Y" value={viewModel.coordinates.y} onChange={(v) => viewModel.coordinates.y = v.target.valueAsNumber} />
+                            <Input type="number" placeholder="Z" value={viewModel.coordinates.z} onChange={(v) => viewModel.coordinates.z = v.target.valueAsNumber} />
                         </div>
                     </CardContent>
                 </Card>

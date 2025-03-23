@@ -44,7 +44,6 @@ export default function PlayerInterface() {
       setActionText("");
   
       story.current.model.player.performActionAsync(currentAction);
-      // await typeWriterViewModel.current.startParsingAsync("[voice;220;50;This is a sentence test. How long should pauses be? Maybe this long? What about commas, like this one, is that okay?]");
   
       playerInput.current!.focus();
     }

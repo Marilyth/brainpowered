@@ -23,7 +23,12 @@ export const StoryEditor: React.FC<StoryEditorProps> = observer(({ storyNode }) 
   const [selectedNode, setSelectedNode] = useState(storyNode);
 
   function onSelectionChanged(node: WorldNodeViewModel) {
-    console.log("Selected node: ", node);
+    if (selectedNode != null)
+      selectedNode.isSelected = false;
+
+    if (node != null)
+      node.isSelected = true;
+
     setSelectedNode(node);
   };
 
