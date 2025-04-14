@@ -2,7 +2,7 @@
 
 import React from "react";
 import Delay from "@/app/classes/utility/Await";
-import { parserCommands } from "@/app/classes/utility/Commands";
+import { runCommand } from "@/app/classes/utility/Commands";
 import Story from "@/app/classes/models/world/base/Story";
 import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
@@ -193,21 +193,17 @@ export default class TypeWriterViewModel {
     if (currentArg || cleanedString.endsWith(";"))
       args.push(currentArg);
 
-    if (args[0] in parserCommands){
-      this.startNesting();
+    this.startNesting();
 
-      try {
-        const returnValue = parserCommands[args[0]](args.slice(1));
+    try {
+      const returnValue = runCommand(args[0], args.slice(1));
 
-        if (returnValue instanceof Promise)
-          await returnValue;
-      }
-      finally {
-        this.endNesting();
-      }
+      if (returnValue instanceof Promise)
+        await returnValue;
     }
-    else
-      throw new Error(`Unknown command: ${args[0]}`);
+    finally {
+      this.endNesting();
+    }
   }
 
   /**

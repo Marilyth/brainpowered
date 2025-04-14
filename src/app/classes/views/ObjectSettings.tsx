@@ -9,6 +9,7 @@ import {
   CardContent
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TextEditor } from "./TextEditor";
 import WorldNodeViewModel from "../viewmodels/WorldNodeViewModel";
 
 interface ObjectSettingsProps {
@@ -32,7 +33,7 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                         <Label>Description</Label>
                         <Input placeholder="You see a wooden table. It's surface showing the marks of time." value={viewModel.description} onChange={(v) => viewModel.description = v.target.value} />
                         <Label>Context</Label>
-                        <Input placeholder="A wooden table can be seen in the corner of the room." value={viewModel.context} onChange={(v) => viewModel.context = v.target.value} />
+                        <TextEditor text={viewModel.context} placeholder="A wooden table can be seen in the corner of the room." />
                         <Label>Dimensions (m)</Label>
                         <div className="grid grid-cols-3 gap-4">
                             <Input type="number" min={0} placeholder="Width" value={viewModel.dimensions.width} onChange={(v) => viewModel.dimensions.width = v.target.valueAsNumber} />

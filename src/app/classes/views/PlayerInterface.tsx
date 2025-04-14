@@ -43,7 +43,7 @@ export default function PlayerInterface() {
       const currentAction = actionText;
       setActionText("");
   
-      story.current.model.player.performActionAsync(currentAction);
+      demo.player.performActionAsync(currentAction);
   
       playerInput.current!.focus();
     }
@@ -54,7 +54,7 @@ export default function PlayerInterface() {
       initialized.current = true;
       typeWriterViewModel.current.startParsingAsync("Enter [color;orange;start] to start the story.");
       setCurrentTypeWriter(typeWriterViewModel.current);
-      typeWriterViewModel.current.story = story.current.model;
+      typeWriterViewModel.current.story = demo;
       
       playerInput.current!.focus();
     }, [typeWriterViewModel]);

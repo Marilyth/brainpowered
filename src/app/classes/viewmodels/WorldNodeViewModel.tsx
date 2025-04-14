@@ -8,7 +8,7 @@ export default class WorldNodeViewModel {
     private _name: string;
     private _description: string;
     private _context: string;
-    private model: WorldNode;
+    public model: WorldNode;
 
     constructor(model: WorldNode) {
         this.model = model;
