@@ -21,6 +21,7 @@ import { CommandIcon, Menu } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { commands } from "../utility/Commands";
 import { CommandDialog } from "./CommandDialog";
+import { Command } from "../utility/Command";
 import { Dialog } from "@/components/ui/dialog";
   
 
@@ -29,45 +30,65 @@ interface TextEditorProps {
   placeholder?: string;
   label?: string;
   isMultiline?: boolean;
+  onChange?: (text: string) => void;
 }
 
-export const TextEditor: React.FC<TextEditorProps> = observer(({ text, placeholder, label, isMultiline = true }) => {
+export const TextEditor: React.FC<TextEditorProps> = observer(({ text, placeholder, label, isMultiline = true, onChange }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCommandIndex, setSelectedCommandIndex] = useState(0);
+  const [selectedCommand, setSelectedCommand] = useState<Command>(commands[0]);
+  const [selectionRange, setSelectionRange] = useState([0, 0]);
+
+  function textChanged(text: string) {
+    if (onChange) {
+      onChange(text);
+    }
+  }
+
+  function insertCommand(command: Command) {
+    const textBefore = text.substring(0, selectionRange[0]);
+    const textAfter = text.substring(selectionRange[1]);
+    textChanged(textBefore + command.toString() + textAfter);
+
+    setIsDialogOpen(false);
+  }
 
   return (
     <div onBlur={() => setIsFocused(false)} onFocus={() => setIsFocused(true)} >
         {/* Command dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <CommandDialog command={commands[selectedCommandIndex]} />
+            <CommandDialog command={selectedCommand!} onInsert={(c) => insertCommand(c)} />
         </Dialog>
 
         {/* Label */}
         {label != null && label.length > 0 ? 
-            <Label>{label}</Label>
+            <Label className="mb-2">{label}</Label>
             : 
             null
         }
         
         {/* Textarea */}
         {isMultiline ?
-            <Textarea  placeholder={placeholder} value={text} onChange={(v) => text = v.target.value} />
+            <Textarea onSelectCapture={(v) => setSelectionRange([v.currentTarget.selectionStart, v.currentTarget.selectionEnd])} id="textfield" placeholder={placeholder} value={text} onChange={(v) => textChanged(v.target.value)} />
             :
-            <Input placeholder={placeholder} value={text} onChange={(v) => text = v.target.value} />
+            <Input onSelectCapture={(v) => setSelectionRange([v.currentTarget.selectionStart!, v.currentTarget.selectionEnd!])} placeholder={placeholder} value={text} onChange={(v) => textChanged(v.target.value)} />
         }
 
         {/* Command bar */}
         {isFocused ?
-            <Menubar className="bg-[#33333311]">
+            <Menubar className="bg-[#00000000]">
                 <MenubarMenu>
                     <MenubarTrigger>
-                        Commands
+                        Add command
                     </MenubarTrigger>
                     <MenubarContent>
                         {commands.map((command, i) => (
                             <MenubarItem key={command.name} className="cursor-pointer" onClick={() => {
-                                setSelectedCommandIndex(i);
+                                // Clone the command and fill the last parameter with the selected text.
+                                const commandClone = command.clone();
+                                commandClone.parameters[commandClone.parameters.length - 1].value = text.substring(selectionRange[0], selectionRange[1]);
+
+                                setSelectedCommand(commandClone);
                                 setIsDialogOpen(true);
                             }}>
                                 {command.name}

@@ -12,9 +12,15 @@ export class CommandParameter {
         makeAutoObservable(this);
     }
 
-    public ToString(): string {
+    public toString(): string {
         return this.value;
+    }
 
-        makeAutoObservable(this);
+    public clone(): CommandParameter {
+        const parameter = new CommandParameter(this.name, this.description);
+
+        parameter.value = this.value;
+
+        return parameter;
     }
 }

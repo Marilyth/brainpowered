@@ -16,9 +16,10 @@ import { Button } from "@/components/ui/button";
 
 interface CommandDialogProps {
   command: Command;
+  onInsert: (command: Command) => void;
 }
 
-export const CommandDialog: React.FC<CommandDialogProps> = observer(({ command }) => {
+export const CommandDialog: React.FC<CommandDialogProps> = observer(({ command, onInsert }) => {
   return (
     <DialogContent>
       <DialogHeader>
@@ -27,11 +28,13 @@ export const CommandDialog: React.FC<CommandDialogProps> = observer(({ command }
           {command.description}
         </DialogDescription>
       </DialogHeader>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
             {command.parameters.map((parameter, index) => (
-                <div key={index} className="flex flex-col">
+                <div key={index}>
                     <Label>{parameter.name}</Label>
-                    {parameter.description}
+                    <div className="text-muted-foreground text-sm">
+                        {parameter.description}
+                    </div>
                     <Input
                         value={parameter.value}
                         onChange={(e) => parameter.value = e.target.value} />
@@ -40,8 +43,10 @@ export const CommandDialog: React.FC<CommandDialogProps> = observer(({ command }
         </div>
       <DialogFooter>
         <Button
-            variant="outline"
-            className="mt-4">
+            onClick={() => {
+                onInsert(command);
+            }}
+            variant="outline">
             Insert
         </Button>
       </DialogFooter>

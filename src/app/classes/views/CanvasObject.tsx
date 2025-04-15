@@ -29,7 +29,7 @@ export const CanvasObject: React.FC<CanvasObjectProps> = observer(({ viewModel, 
   return (
     <ContextMenu>
         <ContextMenuTrigger >
-            <div onClick={onClicked} className="w-full h-full bg-[#333333f0] rounded-lg" style={{ borderColor: viewModel.isSelected ? '#888822f0' : '#000000', borderWidth: viewModel.dimensions.width * meterToHtmlScale / 50 }}>
+            <div onClick={onClicked} className="w-full h-full backdrop-blur-[16px] bg-[#333333b0] rounded-lg" style={{ borderColor: viewModel.isSelected ? '#888822f0' : '#000000', borderWidth: viewModel.dimensions.width * meterToHtmlScale / 50 }}>
                 <div className="text-center p-2" style={{ color: viewModel.color, fontSize: viewModel.dimensions.width * meterToHtmlScale / 10 }}>
                   {viewModel.name}
                 </div>

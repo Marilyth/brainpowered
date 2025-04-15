@@ -11,6 +11,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextEditor } from "./TextEditor";
 import WorldNodeViewModel from "../viewmodels/WorldNodeViewModel";
+import { Button } from "@/components/ui/button";
+import { AttributeSetting } from "./AttributeSetting";
+import { Separator } from "@/components/ui/separator";
 
 interface ObjectSettingsProps {
   viewModel: WorldNodeViewModel;
@@ -30,10 +33,8 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                     <CardContent className="space-y-4">
                         <Label>Name</Label>
                         <Input placeholder="Table" value={viewModel.name} onChange={(v) => viewModel.name = v.target.value} />
-                        <Label>Description</Label>
-                        <Input placeholder="You see a wooden table. It's surface showing the marks of time." value={viewModel.description} onChange={(v) => viewModel.description = v.target.value} />
-                        <Label>Context</Label>
-                        <TextEditor text={viewModel.context} placeholder="A wooden table can be seen in the corner of the room." />
+                        <TextEditor label="Description" text={viewModel.description} onChange={(s) => viewModel.description = s} placeholder="A wooden table can be seen in the corner of the room." />
+                        <TextEditor label="Context" text={viewModel.context} onChange={(s) => viewModel.context = s} placeholder="A wooden table can be seen in the corner of the room." />
                         <Label>Dimensions (m)</Label>
                         <div className="grid grid-cols-3 gap-4">
                             <Input type="number" min={0} placeholder="Width" value={viewModel.dimensions.width} onChange={(v) => viewModel.dimensions.width = v.target.valueAsNumber} />
@@ -46,6 +47,21 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                             <Input type="number" placeholder="Y" value={viewModel.coordinates.y} onChange={(v) => viewModel.coordinates.y = v.target.valueAsNumber} />
                             <Input type="number" placeholder="Z" value={viewModel.coordinates.z} onChange={(v) => viewModel.coordinates.z = v.target.valueAsNumber} />
                         </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="attributes" className="overflow-auto">
+                <Card>
+                    <CardContent className="space-y-4">
+                        {viewModel.attributes.map((attribute, index) => (
+                            <div key={index}>
+                                <AttributeSetting key={index} attribute={attribute} />
+                                <Separator className="my-4" />
+                            </div>
+                        ))}
+
+                        <Button variant="outline" onClick={() => viewModel.addAttribute()}>Add Attribute</Button>
                     </CardContent>
                 </Card>
             </TabsContent>

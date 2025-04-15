@@ -3,6 +3,8 @@ import { WorldNode } from "../models/world/base/WorldNode";
 import Object from "../models/world/base/Object";
 import CoordinatesViewModel from "./CoordinatesViewModel";
 import DimensionsViewModel from "./DimensionsViewModel";
+import AttributeViewModel from "./AttributeViewModel";
+import { Attribute, TextType } from "../models/world/base/Attribute";
 
 export default class WorldNodeViewModel {
     private _name: string;
@@ -21,6 +23,8 @@ export default class WorldNodeViewModel {
         this.dimensions = new DimensionsViewModel(model.dimensions);
         this.children = model.children.map((child) => new WorldNodeViewModel(child));
         this.children.forEach((child) => child.parent = this);
+
+        this.attributes = model.attributes.map((attribute) => new AttributeViewModel(attribute));
         
         makeAutoObservable(this);
     }
@@ -29,6 +33,7 @@ export default class WorldNodeViewModel {
     public dimensions: DimensionsViewModel;
     public parent: WorldNodeViewModel | null = null;
     public children: WorldNodeViewModel[] = [];
+    public attributes: AttributeViewModel[] = [];
     public isSelected: boolean = false;
     public color: string = "#FFFFFF";
 
@@ -69,5 +74,11 @@ export default class WorldNodeViewModel {
 
         this.model.addChild(node);
         this.children.push(new WorldNodeViewModel(node));
+    }
+
+    public addAttribute() {
+        const attribute = new Attribute("New Attribute", "false", TextType.Boolean);
+        this.attributes.push(new AttributeViewModel(attribute));
+        this.model.attributes.push(attribute);
     }
 }

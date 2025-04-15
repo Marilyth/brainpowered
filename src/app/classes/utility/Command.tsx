@@ -21,13 +21,26 @@ export class Command {
         }
     }
 
-    public ToString(): string {
+    public toString(): string {
         const commandComponents = [this.name];
 
         for (const parameter of this.parameters) {
-            commandComponents.push(parameter.ToString());
+            commandComponents.push(parameter.toString());
         }
 
-        return commandComponents.join(";");
+        return `[${commandComponents.join(";")}]`;
+    }
+
+    public clone(): Command {
+        const command = new Command(this.onTrigger);
+
+        command.name = this.name;
+        command.description = this.description;
+
+        for (const parameter of this.parameters) {
+            command.parameters.push(parameter.clone());
+        }
+
+        return command;
     }
 }
