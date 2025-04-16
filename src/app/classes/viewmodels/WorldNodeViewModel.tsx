@@ -4,7 +4,9 @@ import Object from "../models/world/base/Object";
 import CoordinatesViewModel from "./CoordinatesViewModel";
 import DimensionsViewModel from "./DimensionsViewModel";
 import AttributeViewModel from "./AttributeViewModel";
+import StoryEventViewModel from "./StoryEventViewModel";
 import { Attribute, TextType } from "../models/world/base/Attribute";
+import { StoryEvent } from "../models/world/base/StoryEvent";
 
 export default class WorldNodeViewModel {
     private _name: string;
@@ -25,7 +27,8 @@ export default class WorldNodeViewModel {
         this.children.forEach((child) => child.parent = this);
 
         this.attributes = model.attributes.map((attribute) => new AttributeViewModel(attribute));
-        
+        this.events = model.events.map((event) => new StoryEventViewModel(event));
+
         makeAutoObservable(this);
     }
 
@@ -34,6 +37,7 @@ export default class WorldNodeViewModel {
     public parent: WorldNodeViewModel | null = null;
     public children: WorldNodeViewModel[] = [];
     public attributes: AttributeViewModel[] = [];
+    public events: StoryEventViewModel[] = [];
     public isSelected: boolean = false;
     public color: string = "#FFFFFF";
 
@@ -76,9 +80,31 @@ export default class WorldNodeViewModel {
         this.children.push(new WorldNodeViewModel(node));
     }
 
+    public removeChildObject(child: WorldNodeViewModel) {
+        this.children = this.children.filter((c) => c !== child);
+        this.model.removeChild(child.model);
+    }
+
     public addAttribute() {
         const attribute = new Attribute("New Attribute", "false", TextType.Boolean);
         this.attributes.push(new AttributeViewModel(attribute));
         this.model.attributes.push(attribute);
+    }
+
+    public removeAttribute(attribute: AttributeViewModel) {
+        this.attributes = this.attributes.filter((a) => a !== attribute);
+        this.model.attributes = this.model.attributes.filter((a) => a !== attribute.model);
+    }
+
+    public addStoryEvent() {
+        const event = new StoryEvent("EventName", "My response!");
+        this.events.push(new StoryEventViewModel(event));
+        this.model.events.push(event);
+    }
+
+    public removeStoryEvent(event: StoryEventViewModel) {
+        event.model.unregister();
+        this.events = this.events.filter((e) => e !== event);
+        this.model.events = this.model.events.filter((e) => e !== event.model);
     }
 }

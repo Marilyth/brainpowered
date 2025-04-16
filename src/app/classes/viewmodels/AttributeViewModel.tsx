@@ -5,7 +5,7 @@ export default class AttributeViewModel {
     private _name: string;
     private _textType: TextType;
     private _value: string;
-    private model: Attribute;
+    public model: Attribute;
 
     constructor(model: Attribute) {
         this.model = model;
@@ -21,7 +21,7 @@ export default class AttributeViewModel {
     }
 
     public set name(value: string) {
-        this.name = value;
+        this._name = value;
         this.model.name = value;
     }
 

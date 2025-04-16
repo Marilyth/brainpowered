@@ -14,6 +14,8 @@ import WorldNodeViewModel from "../viewmodels/WorldNodeViewModel";
 import { Button } from "@/components/ui/button";
 import { AttributeSetting } from "./AttributeSetting";
 import { Separator } from "@/components/ui/separator";
+import { StoryEventSetting } from "./EventSetting";
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 
 interface ObjectSettingsProps {
   viewModel: WorldNodeViewModel;
@@ -32,8 +34,13 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                 <Card>
                     <CardContent className="space-y-4">
                         <Label>Name</Label>
-                        <Input placeholder="Table" value={viewModel.name} onChange={(v) => viewModel.name = v.target.value} />
-                        <TextEditor label="Description" text={viewModel.description} onChange={(s) => viewModel.description = s} placeholder="A wooden table can be seen in the corner of the room." />
+                        <div id="header" className="grid grid-cols-[1fr_auto] gap-4">
+                            <Input value={viewModel.name} onChange={(v) => viewModel.name = v.target.value} />
+                            <Button variant="ghost" onClick={() => viewModel.parent?.removeChildObject(viewModel)}>
+                                <FiTrash2 color="salmon" />
+                            </Button>
+                        </div>
+                        <TextEditor label="Description" text={viewModel.description} onChange={(s) => viewModel.description = s} placeholder="You can see an old wooden table, brittle from being exposed to water." />
                         <TextEditor label="Context" text={viewModel.context} onChange={(s) => viewModel.context = s} placeholder="A wooden table can be seen in the corner of the room." />
                         <Label>Dimensions (m)</Label>
                         <div className="grid grid-cols-3 gap-4">
@@ -56,12 +63,27 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                     <CardContent className="space-y-4">
                         {viewModel.attributes.map((attribute, index) => (
                             <div key={index}>
-                                <AttributeSetting key={index} attribute={attribute} />
+                                <AttributeSetting key={index} attribute={attribute} onDelete={(a) => viewModel.removeAttribute(a)}/>
                                 <Separator className="my-4" />
                             </div>
                         ))}
 
-                        <Button variant="outline" onClick={() => viewModel.addAttribute()}>Add Attribute</Button>
+                        <Button variant="outline" onClick={() => viewModel.addAttribute()}><FiPlus /> Add attribute</Button>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="events" className="overflow-auto">
+                <Card>
+                    <CardContent className="space-y-4">
+                        {viewModel.events.map((event, index) => (
+                            <div key={index}>
+                                <StoryEventSetting key={index} storyEvent={event} onDelete={(e) => viewModel.removeStoryEvent(e)} />
+                                <Separator className="my-4" />
+                            </div>
+                        ))}
+
+                        <Button variant="outline" onClick={() => viewModel.addStoryEvent()}><FiPlus /> Add event handler</Button>
                     </CardContent>
                 </Card>
             </TabsContent>

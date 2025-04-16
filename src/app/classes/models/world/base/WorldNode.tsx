@@ -4,6 +4,7 @@ import { Sound } from "@/app/classes/models/world/base/Sound";
 import { Dimensions } from "@/app/classes/models/world/base/Dimensions";
 import { Attribute } from "@/app/classes/models/world/base/Attribute";
 import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
+import { StoryEvent } from "./StoryEvent";
 
 
 export abstract class WorldNode {
@@ -14,6 +15,7 @@ export abstract class WorldNode {
     public image: string = "";
 
     public attributes: Attribute[] = [];
+    public events: StoryEvent[] = [];
     public children: WorldNode[] = [];
     public actions: Action[] = [];
     public sounds: Sound[] = [];

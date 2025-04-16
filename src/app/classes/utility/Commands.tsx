@@ -183,7 +183,7 @@ emitEventCommand.parameters.push(new CommandParameter("args", "The arguments to 
 function emitEventAsync(args: string[]): Promise<void> {
     const eventName = args[0];
     const eventArgs = args.slice(1);
-    events.emit(`event_triggered:${eventName}`, eventArgs);
+    events.emit(eventName, eventArgs);
 
     return Promise.resolve();
 }

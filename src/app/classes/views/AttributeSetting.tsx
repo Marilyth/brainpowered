@@ -1,6 +1,7 @@
 import { observer } from "mobx-react-lite";
 import { Command } from "../utility/Command";
 import { Label } from "@/components/ui/label";
+import { FiTrash2 } from 'react-icons/fi';
 import { Input } from "@/components/ui/input";
 import { TextType } from "../models/world/base/Attribute";
 import { TextEditor } from "./TextEditor";
@@ -15,12 +16,14 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import AttributeViewModel from "../viewmodels/AttributeViewModel";
+import { Button } from "@/components/ui/button";
 
 interface AttributeSettingProps {
   attribute: AttributeViewModel;
+  onDelete: (attribute: AttributeViewModel) => void;
 }
 
-export const AttributeSetting: React.FC<AttributeSettingProps> = observer(({ attribute }) => {
+export const AttributeSetting: React.FC<AttributeSettingProps> = observer(({ attribute, onDelete }) => {
     let inputComponent = null;
     const typeSelectComponent = (
         <Select value={attribute.textType} onValueChange={(v) => attribute.textType = v as TextType}>
@@ -72,11 +75,13 @@ export const AttributeSetting: React.FC<AttributeSettingProps> = observer(({ att
 
   return (
     <div className="space-y-4 hover:bg-muted transition-colors rounded p-2">
-        <div id="header" className="grid grid-cols-2 gap-4">
+        <div id="header" className="grid grid-cols-[1fr_auto] gap-4">
             <Input value={attribute.name} onChange={(v) => attribute.name = v.target.value} />
-            {typeSelectComponent}
+            <Button variant="ghost" onClick={() => onDelete(attribute)}>
+                <FiTrash2 color="salmon" />
+            </Button>
         </div>
-
+        {typeSelectComponent}
         {inputComponent}
     </div>
     
