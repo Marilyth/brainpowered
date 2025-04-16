@@ -3,7 +3,7 @@ import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel"
 
 export class StoryEvent {
     private isRegistered: boolean = false;
-    private callable: (...args: any[]) => void;
+    private callable: (...args: any[]) => Promise<void>;
 
     public constructor(public eventName: string, public response: string) {
         this.callable = this.handleEvent.bind(this);
@@ -26,13 +26,13 @@ export class StoryEvent {
         this.isRegistered = false;
     }
 
-    private handleEvent(...args: any[]): void {
+    private async handleEvent(...args: any[]): Promise<void> {
         // Replace $\d+ with the actual arguments passed to the event.
         const argMatcher = /\$(\d+)/g;
         const formattedResponse = this.response.replace(argMatcher, (_, index) => {
             return args[parseInt(index)] || "";
         });
 
-        currentTypeWriter.startParsingAsync(formattedResponse);
+        await currentTypeWriter.startParsingAsync(formattedResponse);
     }
 }

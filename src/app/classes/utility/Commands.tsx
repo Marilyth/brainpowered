@@ -180,12 +180,11 @@ emitEventCommand.name = "event";
 emitEventCommand.description = "Emits an event with the given arguments.";
 emitEventCommand.parameters.push(new CommandParameter("eventName", "The name of the event to emit."));
 emitEventCommand.parameters.push(new CommandParameter("args", "The arguments to the event."));
-function emitEventAsync(args: string[]): Promise<void> {
+async function emitEventAsync(args: string[]): Promise<void> {
     const eventName = args[0];
     const eventArgs = args.slice(1);
-    events.emit(eventName, eventArgs);
-
-    return Promise.resolve();
+    
+    await events.emitAsync(eventName, eventArgs);
 }
 
 const executeCodeCommand = new Command(executeCodeAsync);

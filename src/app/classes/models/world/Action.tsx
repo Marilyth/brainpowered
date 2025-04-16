@@ -68,11 +68,11 @@ export class DynamicAction extends Action {
     public callback: () => Promise<void>;
 
     public async triggerAsync(): Promise<void> {
-        events.emit(`action_triggering:${this.eventName}`);
+        await events.emitAsync(`action_triggering:${this.eventName}`);
 
         await this.callback();
 
-        events.emit(`action_triggered:${this.eventName}`);
+        await events.emitAsync(`action_triggered:${this.eventName}`);
     }
 }
 
@@ -85,10 +85,10 @@ export class StaticAction extends Action{
     public outputText: string;
 
     public async triggerAsync(): Promise<void> {
-        events.emit(`action_triggering:${this.eventName}`);
+        await events.emitAsync(`action_triggering:${this.eventName}`);
 
         await currentTypeWriter.startParsingAsync(this.outputText);
 
-        events.emit(`action_triggered:${this.eventName}`);
+        await events.emitAsync(`action_triggered:${this.eventName}`);
     }
 }
