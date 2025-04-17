@@ -8,18 +8,13 @@ import { Action } from "@/app/classes/models/world/Action";
 export function parseUserInput(actions: Action[], input: string): Action | null {
     const normalizedInput: string = input.toLowerCase().replaceAll(/[^a-z0-9 ]/g, "");
     const tokens: string[] = normalizedInput.split(" ");
-    let biggestMatch: Action | null = null;
-    let biggestMatchLength: number = 0;
 
     for (const action of actions) {
-        const match: string[] | null = action.matches(tokens);
-
-        if (match && match.length > biggestMatchLength) {
-            biggestMatch = action;
-            biggestMatchLength = match.length;
+        console.log("Checking action:", action.actionNames, "against tokens:", tokens);
+        if (action.matches(tokens)) {
+            return action;
         }
     }
 
-    // Return the biggest match.
-    return biggestMatch;
+    return null;
 }

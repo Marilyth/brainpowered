@@ -16,6 +16,7 @@ import { AttributeSetting } from "./AttributeSetting";
 import { Separator } from "@/components/ui/separator";
 import { StoryEventSetting } from "./EventSetting";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
+import { ActionSetting } from "./ActionSetting";
 
 interface ObjectSettingsProps {
   viewModel: WorldNodeViewModel;
@@ -26,9 +27,9 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
         <Tabs defaultValue="details" className="h-full">
             <TabsList className="w-full">
                 <TabsTrigger value="details">Details</TabsTrigger>
+                <TabsTrigger value="actions">Actions</TabsTrigger>
                 <TabsTrigger value="attributes">Attributes</TabsTrigger>
                 <TabsTrigger value="events">Events</TabsTrigger>
-                <TabsTrigger value="sounds">Sounds</TabsTrigger>
             </TabsList>
             <TabsContent value="details" className="overflow-auto">
                 <Card>
@@ -54,6 +55,21 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                             <Input type="number" placeholder="Y" value={viewModel.coordinates.y} onChange={(v) => viewModel.coordinates.y = v.target.valueAsNumber} />
                             <Input type="number" placeholder="Z" value={viewModel.coordinates.z} onChange={(v) => viewModel.coordinates.z = v.target.valueAsNumber} />
                         </div>
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
+            <TabsContent value="actions" className="overflow-auto">
+                <Card>
+                    <CardContent className="space-y-4">
+                        {viewModel.actions.map((action, index) => (
+                            <div key={index}>
+                                <ActionSetting key={index} action={action} onDelete={(a) => viewModel.removeAction(a)}/>
+                                <Separator className="my-4" />
+                            </div>
+                        ))}
+
+                        <Button variant="outline" onClick={() => viewModel.addAction()}><FiPlus /> Add interaction</Button>
                     </CardContent>
                 </Card>
             </TabsContent>

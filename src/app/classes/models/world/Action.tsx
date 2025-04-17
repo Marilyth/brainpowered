@@ -1,94 +1,45 @@
-import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
-import { events } from "@/app/classes/utility/Events";
+import { WorldNode } from "./base/WorldNode";
 
-export abstract class Action {
-    constructor(actionName: string) {
-        this.eventName = actionName;
+export class Action {
+    constructor(actionNames: string[], response: string, parent: WorldNode) {
+        this.actionNames = [];
+
+        for (const alias of actionNames) {
+            this.actionNames.push(alias.toLowerCase());
+        }
+
+        this.response = response;
+        this.parent = parent;
     }
 
-    public eventName: string;
-
-    /**
-     * Triggers the owner's callback with the given string parser.
-     * @param stringParser The string parser to trigger the callback with.
-     */
-    public abstract triggerAsync(): Promise<void>;
+    public actionNames: string[];
+    public response: string;
+    public parent: WorldNode;
 
     /**
      * Checks if the user input matches the command and returns the exact matched tokens.
      * @param tokens The user input tokens.
      * @returns The exact match of the command, picking out aliases, or null if no match.
      */
-    public matches(tokens: string[]): string[] | null {
-        const commandTokens: string[] = this.eventName.toLowerCase().split(" ");
-        const matchIndices: number[] = [];
-        const matchTokens: string[] = [];
-        
-        for (let i = 0; i < commandTokens.length; i++) {
-            const commandToken: string = commandTokens[i];
-            const commandAliases: string[] = commandToken.split("|");
-            let hasMatched: boolean = false;
+    public matches(tokens: string[]): boolean {
+        // Check if any token matches the name of this node before continuing.
+        const nodeName: string = this.parent.name.toLowerCase();
 
-            for (const alias of commandAliases) {
-                // Optionally, we could lemmatize the alias for more natural matching.
-                
-                for (let j = 0; j < tokens.length; j++) {
-                    const token: string = tokens[j];
-
-                    if (token.startsWith(alias)) {
-                        matchIndices.push(j);
-                        matchTokens.push(alias);
-                        hasMatched = true;
-                        break;
-                    }
-                }
-
-                if (hasMatched)
-                    break;
-            }
-
-            // If we didn't find a match, return null.
-            if (!hasMatched)
-                return null;
+        if (!tokens.some((token) => token.toLowerCase() === nodeName)) {
+            return false;
         }
 
-        // Optionally, we can check if the indices are in order.
-        // But for now, we'll just check if they're all present.
-
-        return matchTokens;
+        // Check if any of the actions match the tokens.
+        for (const actionName of this.actionNames) {
+            if (tokens.some((token) => token.toLowerCase() === actionName)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
-}
-
-export class DynamicAction extends Action {
-    constructor(actionName: string, callback: () => Promise<void>) {
-        super(actionName);
-        this.callback = callback;
-    }
-
-    public callback: () => Promise<void>;
 
     public async triggerAsync(): Promise<void> {
-        await events.emitAsync(`action_triggering:${this.eventName}`);
-
-        await this.callback();
-
-        await events.emitAsync(`action_triggered:${this.eventName}`);
-    }
-}
-
-export class StaticAction extends Action{
-    constructor (actionName: string, outputText: string) {
-        super(actionName);
-        this.outputText = outputText;
-    }
-    
-    public outputText: string;
-
-    public async triggerAsync(): Promise<void> {
-        await events.emitAsync(`action_triggering:${this.eventName}`);
-
-        await currentTypeWriter.startParsingAsync(this.outputText);
-
-        await events.emitAsync(`action_triggered:${this.eventName}`);
+        await this.parent.writeAsync(this.response);
     }
 }

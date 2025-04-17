@@ -1,4 +1,4 @@
-import { StaticAction } from "@/app/classes/models/world/Action";
+import { Action } from "@/app/classes/models/world/Action";
 import { WorldNode } from "@/app/classes/models/world/base/WorldNode";
 
 export default class TravelNode extends WorldNode {
@@ -25,8 +25,7 @@ export default class TravelNode extends WorldNode {
      */
     private addMoveToAction() {
         const checkSynonyms: string[] = ["Walk", "Jog", "Run", "Sprint", "Dash", "March", "Stroll", "Saunter", "Amble", "Trek", "Hike", "Wander", "Strut", "Mosey", "Glide", "Shuffle", "Tiptoe", "Creep", "Scurry", "Scuttle", "Rush", "Charge", "Bolt", "Gallop", "Bound", "Lumber", "Trudge", "Stride", "Pace", "Roam", "Drift", "Meander", "Advance", "Proceed", "Migrate", "Relocate", "Travel", "Sneak"];
-        const checkActionCommand: string = checkSynonyms.join("|");
 
-        this.actions.push(new StaticAction(checkActionCommand, this.moveDescription));
+        this.actions.push(new Action(checkSynonyms, this.moveDescription, this));
     }
 }

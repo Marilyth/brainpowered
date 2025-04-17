@@ -7,6 +7,7 @@ import Story from "@/app/classes/models/world/base/Story";
 import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
 import { SynthVoice } from "@/app/classes/utility/SynthVoice";
+import { WorldNode } from "../models/world/base/WorldNode";
 
 export let currentTypeWriter: TypeWriterViewModel;
 
@@ -20,6 +21,7 @@ export interface TypeWriterProps {
   typeSpeed: number;
   pitch: number;
   volumes: number[];
+
 
   characterStyle?: React.CSSProperties;
   characterInitial?: TargetAndTransition;
@@ -53,16 +55,13 @@ export default class TypeWriterViewModel {
    * Parses a string stream and handles ingrained commands and typewriters.
    * @param text The text to parse.
    */
-  public async startParsingAsync(text: string): Promise<void> {
+  public async startParsingAsync(text: string, caller: WorldNode | null = null): Promise<void> {
     // Handle macros first.
     text = this.replaceMacros(this.extractMacros(text));
 
     // Handle text manipulation for the first-level text.
     if (this.propsStack.length == 1) {
       this.isBusy = true;
-
-      if (this.story != null)
-        text = this.story.markNodesInText(text);
       
       // If missing, add a space before the text if the last character was a non-space character.
       if (this.lastCharacter && !/^\s/.test(text) && !/\s$/.test(this.lastCharacter))
@@ -72,7 +71,14 @@ export default class TypeWriterViewModel {
     let ongoingText: string = "";
     let depth: number = 0;
 
-    for (const char of text) {
+    for (let i = 0; i < text.length; i++) {
+      // Evaluate and replace script executions.
+      if (text[i] == "$" && text[i + 1] == "{") {
+        text = text.slice(0, i) + this.evaluateScript(text.slice(i), caller);
+      }
+
+      const char = text[i];
+
       if (char == "[") {
         if(depth == 0 && ongoingText){
           await this.typeAsync(ongoingText);
@@ -106,6 +112,42 @@ export default class TypeWriterViewModel {
     if (this.propsStack.length == 1){
       this.isBusy = false;
     }
+  }
+
+  /**
+   * Replaces the script in the text with the evaluated result.
+   * @param text The text to evaluate.
+   * @param caller The caller of the script. This is used to evaluate the script in the context of the caller.
+   * @returns The text with the evaluated script.
+   */
+  private evaluateScript(text: string, caller: WorldNode | null): string {
+    let depth: number = 1;
+    let script: string = "";
+    console.log("Evaluating script:", text, caller);
+
+    for (let i = 2; i < text.length; i++) {
+      const char = text[i];
+
+      if (char == "}") {
+        depth--;
+
+        if (depth < 0)
+          throw new Error("Mismatched brackets < 0");
+        else if (depth == 0) {
+          text = text.slice(i + 1);
+          break;
+        }
+      }
+
+      script += char;
+    }
+
+    let response = (caller ?? this.story)!.evaluateVariableExpression(script);
+
+    if (this.story != null)
+      response = this.story.markNodesInText(response);
+
+    return response + text;
   }
 
   /**

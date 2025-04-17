@@ -7,6 +7,8 @@ import AttributeViewModel from "./AttributeViewModel";
 import StoryEventViewModel from "./StoryEventViewModel";
 import { Attribute, TextType } from "../models/world/base/Attribute";
 import { StoryEvent } from "../models/world/base/StoryEvent";
+import ActionViewModel from "./ActionViewModel";
+import { Action } from "../models/world/Action";
 
 export default class WorldNodeViewModel {
     private _name: string;
@@ -28,6 +30,7 @@ export default class WorldNodeViewModel {
 
         this.attributes = model.attributes.map((attribute) => new AttributeViewModel(attribute));
         this.events = model.events.map((event) => new StoryEventViewModel(event));
+        this.actions = model.actions.map((action) => new ActionViewModel(action));
 
         makeAutoObservable(this);
     }
@@ -38,6 +41,7 @@ export default class WorldNodeViewModel {
     public children: WorldNodeViewModel[] = [];
     public attributes: AttributeViewModel[] = [];
     public events: StoryEventViewModel[] = [];
+    public actions: ActionViewModel[] = [];
     public isSelected: boolean = false;
     public color: string = "#FFFFFF";
 
@@ -97,7 +101,7 @@ export default class WorldNodeViewModel {
     }
 
     public addStoryEvent() {
-        const event = new StoryEvent("EventName", "My response!");
+        const event = new StoryEvent("EventName", "My response!", this.model);
         this.events.push(new StoryEventViewModel(event));
         this.model.events.push(event);
     }
@@ -106,5 +110,16 @@ export default class WorldNodeViewModel {
         event.model.unregister();
         this.events = this.events.filter((e) => e !== event);
         this.model.events = this.model.events.filter((e) => e !== event.model);
+    }
+
+    public addAction() {
+        const action = new Action(["use"], "You used the ${name}", this.model);
+        this.actions.push(new ActionViewModel(action));
+        this.model.actions.push(action);
+    }
+
+    public removeAction(action: ActionViewModel) {
+        this.actions = this.actions.filter((a) => a !== action);
+        this.model.actions = this.model.actions.filter((a) => a !== action.model);
     }
 }

@@ -1,4 +1,4 @@
-import { Action, StaticAction, DynamicAction } from "@/app/classes/models/world/Action";
+import { Action } from "@/app/classes/models/world/Action";
 import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
 import { Sound } from "@/app/classes/models/world/base/Sound";
 import { Dimensions } from "@/app/classes/models/world/base/Dimensions";
@@ -55,20 +55,11 @@ export abstract class WorldNode {
     public addChild(node: WorldNode) {
         this.children.push(node);
         node.parent = this;
-
-        // Add the check action to the new child.
-        node.addCheckAction();
     }
 
     public removeChild(node: WorldNode) {
         this.children = this.children.filter((child) => child !== node);
         node.parent = null;
-    }
-
-    private async writeCheckString() {
-        const descriptions: string[] = [this.description, ...this.children.map((connection) => connection.context)];
-
-        await currentTypeWriter.startParsingAsync(descriptions.join(" "));
     }
 
     /**
@@ -77,12 +68,43 @@ export abstract class WorldNode {
      */
     private addCheckAction() {
         const checkSynonyms: string[] = ["Inspect", "Assess", "Analyze", "Probe", "Scan", "Investigate", "Survey", "Examine", "Check", "Explore", "Look"];
-        const checkActionCommand: string = checkSynonyms.join("|");
-
-        this.actions.push(new DynamicAction(checkActionCommand, this.writeCheckString.bind(this)));
+        this.actions.push(new Action(checkSynonyms, "${[description, ...children.map((c) => c.context)].join(\" \")}", this));
     }
 
-    private removeAction(action: Action) {
+    public addAction(action: Action) {
+        this.actions.push(action);
+    }
+
+    public removeAction(action: Action) {
         this.actions = this.actions.filter((a) => a !== action);
+    }
+
+    /**
+     * A string crawling through the properties of the node using JavaScript's eval function.
+     * @param expression The expression to evaluate. This can be a string containing variables and their values.
+     */
+    public evaluateVariableExpression(expression: string): string {
+        const context: { [key: string]: any } = {};
+
+        for (const key in this) {
+            context[key] = this[key];
+        }
+
+        for (const attribute of this.attributes || []) {
+            context[attribute.name] = attribute.value;
+        }
+
+        try {
+            const func = new Function(...Object.keys(context), `return ${expression};`);
+            const result = func(...Object.values(context));
+            return typeof result === "string" ? result : "";
+        } catch (e) {
+            console.error("Expression evaluation error:", e);
+            return "";
+        }
+    }
+
+    public async writeAsync(text: string): Promise<void> {
+        await currentTypeWriter.startParsingAsync(text, this);
     }
 }

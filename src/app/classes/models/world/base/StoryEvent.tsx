@@ -1,11 +1,12 @@
 import { events } from "@/app/classes/utility/Events";
 import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
+import { WorldNode } from "./WorldNode";
 
 export class StoryEvent {
     private isRegistered: boolean = false;
     private callable: (...args: any[]) => Promise<void>;
 
-    public constructor(public eventName: string, public response: string) {
+    public constructor(public eventName: string, public response: string, public parent: WorldNode) {
         this.callable = this.handleEvent.bind(this);
         this.register();
     }
@@ -33,6 +34,6 @@ export class StoryEvent {
             return args[parseInt(index)] || "";
         });
 
-        await currentTypeWriter.startParsingAsync(formattedResponse);
+        await this.parent.writeAsync(formattedResponse);
     }
 }
