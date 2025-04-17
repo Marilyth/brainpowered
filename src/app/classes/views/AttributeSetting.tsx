@@ -3,7 +3,6 @@ import { Command } from "../utility/Command";
 import { Label } from "@/components/ui/label";
 import { FiTrash2 } from 'react-icons/fi';
 import { Input } from "@/components/ui/input";
-import { TextType } from "../models/world/base/Attribute";
 import { TextEditor } from "./TextEditor";
 
 import {
@@ -15,7 +14,7 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
-import AttributeViewModel from "../viewmodels/AttributeViewModel";
+import { AttributeViewModel, TextType } from "../viewmodels/AttributeViewModel";
 import { Button } from "@/components/ui/button";
 
 interface AttributeSettingProps {
@@ -53,13 +52,13 @@ export const AttributeSetting: React.FC<AttributeSettingProps> = observer(({ att
 
     else if (attribute.textType == TextType.Number) {
         inputComponent = (
-            <Input type="number" value={attribute.value} onChange={(v) => attribute.value = v.target.value} />
+            <Input type="number" value={attribute.value} onChange={(v) => attribute.value = v.currentTarget.valueAsNumber} />
         );
     }
 
     else if (attribute.textType == TextType.Boolean) {
         inputComponent = (
-            <Select value={attribute.value} onValueChange={(v) => attribute.value = v}>
+            <Select value={attribute.value} onValueChange={(v) => attribute.value = v === "true"}>
                 <SelectTrigger>
                     <SelectValue placeholder="Select an option" />
                 </SelectTrigger>

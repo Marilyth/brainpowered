@@ -68,15 +68,40 @@ export abstract class WorldNode {
      */
     private addCheckAction() {
         const checkSynonyms: string[] = ["Inspect", "Assess", "Analyze", "Probe", "Scan", "Investigate", "Survey", "Examine", "Check", "Explore", "Look"];
-        this.actions.push(new Action(checkSynonyms, "${[description, ...children.map((c) => c.context)].join(\" \")}", this));
+        this.actions.push(new Action(checkSynonyms, "${[this.description, ...this.children.map((c) => c.context)].join(\" \")}", this));
     }
 
-    public addAction(action: Action) {
-        this.actions.push(action);
-    }
+    /**
+     * Flattens the worldnode and all its attributes into a single object.
+     * @returns A flattened object containing all properties of the node and its attributes directly accessible.
+     */
+    public getFlattenedObject(): { [key: string]: any }  {
+        const flattenedObject: { [key: string]: any } = {};
 
-    public removeAction(action: Action) {
-        this.actions = this.actions.filter((a) => a !== action);
+        for (const key in this) {
+            // Might need recursive flattening of children and parent.
+            Object.defineProperty(flattenedObject, key, {
+                get: () => this[key],
+                set: (value: any) => {
+                    this[key] = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+        }
+
+        for (const attribute of this.attributes || []) {
+            Object.defineProperty(flattenedObject, attribute.name, {
+                get: () => attribute.value,
+                set: (value) => {
+                    attribute.value = value;
+                },
+                enumerable: true,
+                configurable: true
+            });
+        }
+
+        return flattenedObject;
     }
 
     /**
@@ -84,20 +109,16 @@ export abstract class WorldNode {
      * @param expression The expression to evaluate. This can be a string containing variables and their values.
      */
     public evaluateVariableExpression(expression: string): string {
-        const context: { [key: string]: any } = {};
-
-        for (const key in this) {
-            context[key] = this[key];
-        }
-
-        for (const attribute of this.attributes || []) {
-            context[attribute.name] = attribute.value;
-        }
+        const context: { [key: string]: any } = { };
 
         try {
             const func = new Function(...Object.keys(context), `return ${expression};`);
-            const result = func(...Object.values(context));
-            return typeof result === "string" ? result : "";
+            const result = func.apply(this.getFlattenedObject(), Object.values(context));
+
+            if (result !== undefined)
+                return result.toString();
+
+            return "";
         } catch (e) {
             console.error("Expression evaluation error:", e);
             return "";

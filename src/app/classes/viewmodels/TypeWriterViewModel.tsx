@@ -75,6 +75,8 @@ export default class TypeWriterViewModel {
       // Evaluate and replace script executions.
       if (text[i] == "$" && text[i + 1] == "{") {
         text = text.slice(0, i) + this.evaluateScript(text.slice(i), caller);
+        i--;
+        continue;
       }
 
       const char = text[i];

@@ -38,6 +38,10 @@
     "react-markdown": "^10.0.1",
     "react-resizable-panels": "^2.1.7",
     "reflect-metadata": "^0.2.2",
+    "slate": "^0.112.0",
+    "slate-history": "^0.113.1",
+    "slate-hyperscript": "^0.100.0",
+    "slate-react": "^0.112.1",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7"

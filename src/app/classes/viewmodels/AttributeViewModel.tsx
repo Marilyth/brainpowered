@@ -1,18 +1,31 @@
 import { makeAutoObservable } from "mobx";
-import { Attribute, TextType } from "../models/world/base/Attribute";
+import { Attribute } from "../models/world/base/Attribute";
 
-export default class AttributeViewModel {
+export enum TextType {
+    Text = "text",
+    Number = "number",
+    Boolean = "boolean",
+}
+
+export class AttributeViewModel {
     private _name: string;
-    private _textType: TextType;
-    private _value: string;
+    private _value: any;
     public model: Attribute;
+    public textType: TextType;
 
     constructor(model: Attribute) {
         this.model = model;
         this._name = model.name;
-        this._textType = model.textType;
         this._value = model.value;
         
+        if (typeof model.value === "boolean") {
+            this.textType = TextType.Boolean;
+        } else if (typeof model.value === "number") {
+            this.textType = TextType.Number;
+        } else {
+            this.textType = TextType.Text;
+        }
+
         makeAutoObservable(this);
     }
 
@@ -25,20 +38,11 @@ export default class AttributeViewModel {
         this.model.name = value;
     }
 
-    public get textType() {
-        return this._textType;
-    }
-
-    public set textType(value: TextType) {
-        this._textType = value;
-        this.model.textType = value;
-    }
-
     public get value() {
         return this._value;
     }
     
-    public set value(value: string) {
+    public set value(value: any) {
         this._value = value;
         this.model.value = value;
     }

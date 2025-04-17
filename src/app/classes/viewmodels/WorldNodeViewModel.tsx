@@ -3,9 +3,9 @@ import { WorldNode } from "../models/world/base/WorldNode";
 import Object from "../models/world/base/Object";
 import CoordinatesViewModel from "./CoordinatesViewModel";
 import DimensionsViewModel from "./DimensionsViewModel";
-import AttributeViewModel from "./AttributeViewModel";
+import { AttributeViewModel } from "./AttributeViewModel";
 import StoryEventViewModel from "./StoryEventViewModel";
-import { Attribute, TextType } from "../models/world/base/Attribute";
+import { Attribute } from "../models/world/base/Attribute";
 import { StoryEvent } from "../models/world/base/StoryEvent";
 import ActionViewModel from "./ActionViewModel";
 import { Action } from "../models/world/Action";
@@ -90,7 +90,7 @@ export default class WorldNodeViewModel {
     }
 
     public addAttribute() {
-        const attribute = new Attribute("New Attribute", "false", TextType.Boolean);
+        const attribute = new Attribute("New Attribute", false);
         this.attributes.push(new AttributeViewModel(attribute));
         this.model.attributes.push(attribute);
     }
