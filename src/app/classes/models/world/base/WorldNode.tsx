@@ -75,11 +75,16 @@ export abstract class WorldNode {
     }
 
     public addChild(node: WorldNode) {
+        if (node.parent === this || node === this) return;
+
+        node.parent?.removeChild(node);
         this.children.push(node);
         node.parent = this;
     }
 
     public removeChild(node: WorldNode) {
+        if (node.parent !== this) return;
+
         this.children = this.children.filter((child) => child !== node);
         node.parent = null;
     }
@@ -178,5 +183,21 @@ export abstract class WorldNode {
         }
 
         return genId;
+    }
+
+    /**
+     * Checks if the node is inside another node.
+     * @param other The other node to check against.
+     * @returns True if the node is inside the other node, false otherwise.
+     */
+    public isInside(other: WorldNode): boolean {
+        return (
+            this.coordinates.x >= other.coordinates.x &&
+            this.coordinates.y >= other.coordinates.y &&
+            this.coordinates.z >= other.coordinates.z &&
+            this.coordinates.x + this.dimensions.width <= other.coordinates.x + other.dimensions.width &&
+            this.coordinates.y + this.dimensions.depth <= other.coordinates.y + other.dimensions.depth &&
+            this.coordinates.z + this.dimensions.height <= other.coordinates.z + other.dimensions.height
+          );
     }
 }

@@ -24,14 +24,13 @@ interface ObjectSettingsProps {
 
 export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewModel }) => {
     return (
-        <Tabs defaultValue="details" className="h-full">
+        <Tabs defaultValue="attributes" className="h-full">
             <TabsList className="w-full">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="actions">Actions</TabsTrigger>
                 <TabsTrigger value="attributes">Attributes</TabsTrigger>
+                <TabsTrigger value="actions">Actions</TabsTrigger>
                 <TabsTrigger value="events">Events</TabsTrigger>
             </TabsList>
-            <TabsContent value="details" className="overflow-auto">
+            <TabsContent value="attributes" className="overflow-auto space-y-4">
                 <Card>
                     <CardContent className="space-y-4">
                         <Label>Id</Label>
@@ -59,6 +58,18 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                         </div>
                     </CardContent>
                 </Card>
+                <Card>
+                    <CardContent className="space-y-4">
+                        {viewModel.attributes.map((attribute, index) => (
+                            <div key={index}>
+                                <AttributeSetting key={index} attribute={attribute} onDelete={(a) => viewModel.removeAttribute(a)}/>
+                                <Separator className="my-4" />
+                            </div>
+                        ))}
+
+                        <Button variant="outline" onClick={() => viewModel.addAttribute()}><FiPlus /> Add attribute</Button>
+                    </CardContent>
+                </Card>
             </TabsContent>
 
             <TabsContent value="actions" className="overflow-auto">
@@ -72,21 +83,6 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                         ))}
 
                         <Button variant="outline" onClick={() => viewModel.addAction()}><FiPlus /> Add interaction</Button>
-                    </CardContent>
-                </Card>
-            </TabsContent>
-
-            <TabsContent value="attributes" className="overflow-auto">
-                <Card>
-                    <CardContent className="space-y-4">
-                        {viewModel.attributes.map((attribute, index) => (
-                            <div key={index}>
-                                <AttributeSetting key={index} attribute={attribute} onDelete={(a) => viewModel.removeAttribute(a)}/>
-                                <Separator className="my-4" />
-                            </div>
-                        ))}
-
-                        <Button variant="outline" onClick={() => viewModel.addAttribute()}><FiPlus /> Add attribute</Button>
                     </CardContent>
                 </Card>
             </TabsContent>

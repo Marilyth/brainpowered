@@ -78,7 +78,7 @@ export default function PlayerInterface() {
               <Typewriter viewModel={typeWriterViewModel.current} />
             )}
             {viewState === ViewState.Editor && (
-              <StoryEditor storyNode={story.current} />
+              <StoryEditor storyNode={new WorldNodeViewModel(demo)} />
             )}
           </CardContent>
         </Card>
