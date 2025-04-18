@@ -34,13 +34,15 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
             <TabsContent value="details" className="overflow-auto">
                 <Card>
                     <CardContent className="space-y-4">
-                        <Label>Name</Label>
+                        <Label>Id</Label>
                         <div id="header" className="grid grid-cols-[1fr_auto] gap-4">
-                            <Input value={viewModel.name} onChange={(v) => viewModel.name = v.target.value} />
+                            <Input disabled value={viewModel.id} />
                             <Button variant="ghost" onClick={() => viewModel.parent?.removeChildObject(viewModel)}>
                                 <FiTrash2 color="salmon" />
                             </Button>
                         </div>
+                        <Label>Name</Label>
+                        <Input value={viewModel.name} onChange={(v) => viewModel.name = v.target.value} />
                         <TextEditor label="Description" text={viewModel.description} onChange={(s) => viewModel.description = s} placeholder="You can see an old wooden table, brittle from being exposed to water." />
                         <TextEditor label="Context" text={viewModel.context} onChange={(s) => viewModel.context = s} placeholder="A wooden table can be seen in the corner of the room." />
                         <Label>Dimensions (m)</Label>

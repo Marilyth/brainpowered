@@ -6,7 +6,7 @@ import { parseUserInput } from "@/app/classes/models/world/ActionParser";
 import { WorldNode } from "@/app/classes/models/world/base/WorldNode";
 
 export class Player extends WorldNode {
-    constructor(public name: string, public coordinates: Observer) {
+    constructor(name: string, public coordinates: Observer) {
         super(name, "", "");
     }
 

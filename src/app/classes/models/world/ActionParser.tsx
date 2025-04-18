@@ -10,7 +10,6 @@ export function parseUserInput(actions: Action[], input: string): Action | null 
     const tokens: string[] = normalizedInput.split(" ");
 
     for (const action of actions) {
-        console.log("Checking action:", action.actionNames, "against tokens:", tokens);
         if (action.matches(tokens)) {
             return action;
         }

@@ -66,6 +66,8 @@ export default class TypeWriterViewModel {
       // If missing, add a space before the text if the last character was a non-space character.
       if (this.lastCharacter && !/^\s/.test(text) && !/\s$/.test(this.lastCharacter))
         text = " " + text;
+
+      text = this.story?.markNodesInText(text) ?? text;
     }
 
     let ongoingText: string = "";
@@ -125,7 +127,6 @@ export default class TypeWriterViewModel {
   private evaluateScript(text: string, caller: WorldNode | null): string {
     let depth: number = 1;
     let script: string = "";
-    console.log("Evaluating script:", text, caller);
 
     for (let i = 2; i < text.length; i++) {
       const char = text[i];

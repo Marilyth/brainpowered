@@ -16,17 +16,18 @@ export default class WorldNodeViewModel {
     private _context: string;
     public model: WorldNode;
 
-    constructor(model: WorldNode) {
+    constructor(model: WorldNode, parent: WorldNodeViewModel | null = null) {
         this.model = model;
         this.color = model.color;
         this._name = model.name;
         this._description = model.description;
         this._context = model.context;
+        this.id = model.id;
+        this.parent = parent;
 
         this.coordinates = new CoordinatesViewModel(model.coordinates);
         this.dimensions = new DimensionsViewModel(model.dimensions);
-        this.children = model.children.map((child) => new WorldNodeViewModel(child));
-        this.children.forEach((child) => child.parent = this);
+        this.children = model.children.map((child) => new WorldNodeViewModel(child, this));
 
         this.attributes = model.attributes.map((attribute) => new AttributeViewModel(attribute));
         this.events = model.events.map((event) => new StoryEventViewModel(event));
@@ -44,6 +45,7 @@ export default class WorldNodeViewModel {
     public actions: ActionViewModel[] = [];
     public isSelected: boolean = false;
     public color: string = "#FFFFFF";
+    public id: string;
 
     public get name() {
         return this._name;
@@ -52,6 +54,7 @@ export default class WorldNodeViewModel {
     public set name(value: string) {
         this._name = value;
         this.model.name = value;
+        this.id = this.model.id;
     }
 
     public get description() {
@@ -81,7 +84,7 @@ export default class WorldNodeViewModel {
         node.dimensions.height = this.model.dimensions.height / 2;
 
         this.model.addChild(node);
-        this.children.push(new WorldNodeViewModel(node));
+        this.children.push(new WorldNodeViewModel(node, this));
     }
 
     public removeChildObject(child: WorldNodeViewModel) {

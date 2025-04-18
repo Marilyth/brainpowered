@@ -13,6 +13,6 @@ export class Attribute {
 
     public set value(value: any) {
         this._value = value;
-        events.emit(`attribute_changed:${this.name}`);
+        events.emitAsync(`attribute_changed:${this.name}`);
     }
 }

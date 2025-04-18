@@ -19,7 +19,7 @@ export default class Story extends WorldNode {
     public markNodesInText(text: string): string {
         const objects: WorldNode[] = [this, this.player.parent!, ...this.player.parent!.children];
         for (const object of objects) {
-            text = text.replace(new RegExp(`(${object.name.toLowerCase()})`, "g"), `[color;${object.color};$1]`);
+            text = text.replace(new RegExp(`(^|\\s)(${object.name.toLowerCase()})`, "gmi"), `$1[color;${object.color};$2]`);
         }
 
         return text;
