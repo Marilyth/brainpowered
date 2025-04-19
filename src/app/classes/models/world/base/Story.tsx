@@ -1,16 +1,17 @@
-import TypeWriterViewModel from "@/app/classes/viewmodels/TypeWriterViewModel";
-import { Player } from "@/app/classes/models/world/Player";
-import { WorldNode } from "@/app/classes/models/world/base/WorldNode";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+import { WorldNode } from "./WorldNode";
+import { Player } from "../Player";
 
-export default class Story extends WorldNode {
-    public player: Player;
-    public color: string = "#FFFFAA";
-
+@RegisterClass
+export class Story extends WorldNode {
     constructor(name: string, description: string, longDescription: string, player: Player) {
         super(name, description, longDescription);
 
         this.player = player;
     }
+
+    public player: Player;
+    public color: string = "#FFFFAA";
 
     /**
      * Replaces all occurences of the node and children's names in the text with a colored version of the name.
@@ -62,4 +63,4 @@ export default class Story extends WorldNode {
             nearestParent.addChild(node);
         }
     }
- }
+}

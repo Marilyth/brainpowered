@@ -2,7 +2,9 @@ import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
 import { Observer } from "@/app/classes/models/world/base/Observer";
 import { Sound } from "@/app/classes/models/world/base/Sound";
 import { events } from "@/app/classes/utility/Events";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 
+@RegisterClass
 export class SpatialSound extends Sound {
     private panner: PannerNode;
 

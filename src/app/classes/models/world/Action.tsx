@@ -1,5 +1,7 @@
+import { RegisterClass } from "../../utility/JsonHelper";
 import { WorldNode } from "./base/WorldNode";
 
+@RegisterClass
 export class Action {
     constructor(actionNames: string[], response: string, parent: WorldNode) {
         this.actionNames = [];

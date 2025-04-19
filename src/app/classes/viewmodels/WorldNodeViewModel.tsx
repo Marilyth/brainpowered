@@ -1,11 +1,10 @@
 import { makeAutoObservable } from "mobx";
 import { WorldNode } from "../models/world/base/WorldNode";
-import Object from "../models/world/base/Object";
 import CoordinatesViewModel from "./CoordinatesViewModel";
 import DimensionsViewModel from "./DimensionsViewModel";
-import { AttributeViewModel } from "./AttributeViewModel";
+import { PropertyViewModel as PropertyViewModel } from "./PropertyViewModel";
 import StoryEventViewModel from "./StoryEventViewModel";
-import { Attribute } from "../models/world/base/Attribute";
+import { Property } from "../models/world/base/Property";
 import { StoryEvent } from "../models/world/base/StoryEvent";
 import ActionViewModel from "./ActionViewModel";
 import { Action } from "../models/world/Action";
@@ -29,7 +28,7 @@ export default class WorldNodeViewModel {
         this.dimensions = new DimensionsViewModel(model.dimensions);
         this.children = model.children.map((child) => new WorldNodeViewModel(child, this));
 
-        this.attributes = model.attributes.map((attribute) => new AttributeViewModel(attribute));
+        this.properties = model.properties.map((property) => new PropertyViewModel(property));
         this.events = model.events.map((event) => new StoryEventViewModel(event));
         this.actions = model.actions.map((action) => new ActionViewModel(action));
 
@@ -40,7 +39,7 @@ export default class WorldNodeViewModel {
     public dimensions: DimensionsViewModel;
     public parent: WorldNodeViewModel | null = null;
     public children: WorldNodeViewModel[] = [];
-    public attributes: AttributeViewModel[] = [];
+    public properties: PropertyViewModel[] = [];
     public events: StoryEventViewModel[] = [];
     public actions: ActionViewModel[] = [];
     public isSelected: boolean = false;
@@ -76,7 +75,7 @@ export default class WorldNodeViewModel {
     }
 
     public addChildObject() {
-        const node = new Object("New Node", "New Context", "New Description");
+        const node = new WorldNode("New Node", "New Context", "New Description");
 
         // Make dimensions 1/10th of the parent's dimensions.
         node.dimensions.width = this.model.dimensions.width / 2;
@@ -92,15 +91,15 @@ export default class WorldNodeViewModel {
         this.model.removeChild(child.model);
     }
 
-    public addAttribute() {
-        const attribute = new Attribute("New Attribute", false);
-        this.attributes.push(new AttributeViewModel(attribute));
-        this.model.attributes.push(attribute);
+    public addProperty() {
+        const property = new Property("New Property", false);
+        this.properties.push(new PropertyViewModel(property));
+        this.model.properties.push(property);
     }
 
-    public removeAttribute(attribute: AttributeViewModel) {
-        this.attributes = this.attributes.filter((a) => a !== attribute);
-        this.model.attributes = this.model.attributes.filter((a) => a !== attribute.model);
+    public removeProperty(property: PropertyViewModel) {
+        this.properties = this.properties.filter((a) => a !== property);
+        this.model.properties = this.model.properties.filter((a) => a !== property.model);
     }
 
     public addStoryEvent() {

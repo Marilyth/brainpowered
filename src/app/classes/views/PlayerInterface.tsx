@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiSend, FiEdit, FiPlay } from 'react-icons/fi';
 import React from "react";
 import { Typewriter } from "./Typewriter";
-import Story from "../models/world/base/Story";
+import { Story } from "../models/world/base/Story";
 import { demo } from "../models/world/stories/Demo/Demo";
 import TypeWriterViewModel from "@/app/classes/viewmodels/TypeWriterViewModel";
 import {

@@ -1,9 +1,11 @@
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+
+@RegisterClass
 export class Coordinates {
-    constructor(public x: number, public y: number, public z: number, public width: number = 0, public depth: number = 0, public height: number = 0) { }
+    constructor(public x: number, public y: number, public z: number) { }
 
     public equals(other: Coordinates): boolean {
-        return this.x === other.x && this.y === other.y && this.z === other.z &&
-            this.width === other.width && this.depth === other.depth && this.height === other.height;
+        return this.x === other.x && this.y === other.y && this.z === other.z;
     }
 
     /**
@@ -51,13 +53,5 @@ export class Coordinates {
      */
     public magnitude(): number {
         return this.dotProduct(this);
-    }
-
-    public getArea(): number {
-        return this.width * this.depth;
-    }
-
-    public getVolume(): number {
-        return this.width * this.depth * this.height;
     }
 }

@@ -1,18 +1,19 @@
-import TravelNode from "@/app/classes/models/world/base/TravelNode";
-import { Observer } from "@/app/classes/models/world/base/Observer";
-import { events } from "@/app/classes/utility/Events";
-import { Action } from "@/app/classes/models/world/Action";
-import { parseUserInput } from "@/app/classes/models/world/ActionParser";
-import { WorldNode } from "@/app/classes/models/world/base/WorldNode";
+import { RegisterClass } from "../../utility/JsonHelper";
+import { Observer } from "./base/Observer";
+import { WorldNode } from "./base/WorldNode";
+import { events } from "../../utility/Events";
+import { Action } from "./Action";
+import { parseUserInput } from "./ActionParser";
 
+@RegisterClass
 export class Player extends WorldNode {
-    constructor(name: string, public coordinates: Observer) {
+    constructor(name: string, coordinates: Observer) {
         super(name, "", "");
+
+        this.coordinates = coordinates;
     }
 
-    public getCoordinates(): Observer {
-        return this.coordinates;
-    }
+    public coordinates: Observer;
 
     public modifyCoordinates(modifier: (observer: Observer) => void): void {
         modifier(this.coordinates);

@@ -1,7 +1,10 @@
-import { Action } from "@/app/classes/models/world/Action";
-import { WorldNode } from "@/app/classes/models/world/base/WorldNode";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+import { WorldNode } from "./WorldNode";
+import { Action } from "../Action";
 
-export default class TravelNode extends WorldNode {
+
+@RegisterClass
+export class TravelNode extends WorldNode {
     public color: string = "#AAAAFF";
     public moveDescription: string;
 

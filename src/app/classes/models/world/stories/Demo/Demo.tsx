@@ -1,10 +1,10 @@
 import { Coordinates } from "../../base/Coordinates";
-import TravelNode from "../../base/TravelNode";
 import { Observer } from "../../base/Observer";
-import Story from "../../base/Story";
-import { Player } from "../../Player";
-import Object from "../../base/Object";
 import { Action } from "../../Action";
+import { WorldNode } from "../../base/WorldNode";
+import { TravelNode } from "../../base/TravelNode";
+import { Player } from "../../Player";
+import { Story } from "../../base/Story";
 
 const player: Player = new Player("Hans", new Observer(5, 0, 0));
 
@@ -16,7 +16,7 @@ demo.actions.push(
     new Action(["start", "begin"], "This is a [color;orange;demo] story. Please take your time getting adjusted to the way these games play.", demo)
 );
 
-const startingLocation = new Object("Hallway", "You see a dark hallway.", "A dark hallway stretches forward about 50 meters. The walls are covered in a dark red wallpaper.");
+const startingLocation = new WorldNode("Hallway", "You see a dark hallway.", "A dark hallway stretches forward about 50 meters. The walls are covered in a dark red wallpaper.");
 startingLocation.dimensions.width = 10;
 startingLocation.dimensions.height = 10;
 startingLocation.dimensions.depth = 10;

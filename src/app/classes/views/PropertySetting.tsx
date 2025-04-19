@@ -14,18 +14,18 @@ import {
     SelectTrigger,
     SelectValue,
   } from "@/components/ui/select"
-import { AttributeViewModel, TextType } from "../viewmodels/AttributeViewModel";
+import { PropertyViewModel, TextType } from "../viewmodels/PropertyViewModel";
 import { Button } from "@/components/ui/button";
 
 interface AttributeSettingProps {
-  attribute: AttributeViewModel;
-  onDelete: (attribute: AttributeViewModel) => void;
+  property: PropertyViewModel;
+  onDelete: (property: PropertyViewModel) => void;
 }
 
-export const AttributeSetting: React.FC<AttributeSettingProps> = observer(({ attribute, onDelete }) => {
+export const PropertySetting: React.FC<AttributeSettingProps> = observer(({ property, onDelete }) => {
     let inputComponent = null;
     const typeSelectComponent = (
-        <Select value={attribute.textType} onValueChange={(v) => attribute.textType = v as TextType}>
+        <Select value={property.textType} onValueChange={(v) => property.textType = v as TextType}>
             <SelectTrigger>
                 <SelectValue placeholder="Select an option" />
             </SelectTrigger>
@@ -44,21 +44,21 @@ export const AttributeSetting: React.FC<AttributeSettingProps> = observer(({ att
         </Select>
     );
 
-    if (attribute.textType == TextType.Text) {
+    if (property.textType == TextType.Text) {
         inputComponent = (
-            <TextEditor isMultiline={false} text={attribute.value} onChange={(v) => attribute.value = v} />
+            <TextEditor isMultiline={false} text={property.value} onChange={(v) => property.value = v} />
         );
     }
 
-    else if (attribute.textType == TextType.Number) {
+    else if (property.textType == TextType.Number) {
         inputComponent = (
-            <Input type="number" value={attribute.value} onChange={(v) => attribute.value = v.currentTarget.valueAsNumber} />
+            <Input type="number" value={property.value} onChange={(v) => property.value = v.currentTarget.valueAsNumber} />
         );
     }
 
-    else if (attribute.textType == TextType.Boolean) {
+    else if (property.textType == TextType.Boolean) {
         inputComponent = (
-            <Select value={attribute.value} onValueChange={(v) => attribute.value = v === "true"}>
+            <Select value={property.value} onValueChange={(v) => property.value = v === "true"}>
                 <SelectTrigger>
                     <SelectValue placeholder="Select an option" />
                 </SelectTrigger>
@@ -75,8 +75,8 @@ export const AttributeSetting: React.FC<AttributeSettingProps> = observer(({ att
   return (
     <div className="space-y-4 hover:bg-muted transition-colors rounded p-2">
         <div id="header" className="grid grid-cols-[1fr_auto] gap-4">
-            <Input value={attribute.name} onChange={(v) => attribute.name = v.target.value} />
-            <Button variant="ghost" onClick={() => onDelete(attribute)}>
+            <Input value={property.name} onChange={(v) => property.name = v.target.value} />
+            <Button variant="ghost" onClick={() => onDelete(property)}>
                 <FiTrash2 color="salmon" />
             </Button>
         </div>

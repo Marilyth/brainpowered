@@ -1,6 +1,8 @@
 import { events } from "@/app/classes/utility/Events";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 
-export class Attribute {
+@RegisterClass
+export class Property {
     private _value: any;
 
     public constructor(public name: string, value: any) {
@@ -13,6 +15,6 @@ export class Attribute {
 
     public set value(value: any) {
         this._value = value;
-        events.emitAsync(`attribute_changed:${this.name}`);
+        events.emitAsync(`property_changed:${this.name}`);
     }
 }

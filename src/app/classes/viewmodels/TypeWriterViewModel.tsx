@@ -3,11 +3,11 @@
 import React from "react";
 import Delay from "@/app/classes/utility/Await";
 import { runCommand } from "@/app/classes/utility/Commands";
-import Story from "@/app/classes/models/world/base/Story";
 import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
 import { SynthVoice } from "@/app/classes/utility/SynthVoice";
 import { WorldNode } from "../models/world/base/WorldNode";
+import { Story } from "../models/world/base/Story";
 
 export let currentTypeWriter: TypeWriterViewModel;
 
@@ -37,6 +37,7 @@ export default class TypeWriterViewModel {
   private propsStack: TypeWriterProps[] = [];
   private macros = new Map<string, string>();
   private lastCharacter: string = "";
+  private queue: {text: string, caller: WorldNode | null}[] = [];
   
   constructor(props: TypeWriterProps) {
     makeAutoObservable(this);
@@ -49,6 +50,13 @@ export default class TypeWriterViewModel {
    */
   public getProps(): TypeWriterProps {
     return this.propsStack[this.propsStack.length - 1];
+  }
+
+  public async queueTextAsync(text: string, caller: WorldNode | null = null): Promise<void> {
+    if (!this.isBusy)
+      await this.startParsingAsync(text, caller);
+    else
+      this.queue.push({text, caller});
   }
 
   /**
@@ -114,6 +122,14 @@ export default class TypeWriterViewModel {
     await this.typeAsync(ongoingText);
 
     if (this.propsStack.length == 1){
+      // If there are texts in the queue, start parsing them.
+      if (this.queue.length > 0) {
+        const next = this.queue.shift();
+        await this.startParsingAsync(next!.text, next!.caller);
+
+        return;
+      }
+
       this.isBusy = false;
     }
   }

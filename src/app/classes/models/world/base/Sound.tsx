@@ -1,5 +1,7 @@
 import Delay from "@/app/classes/utility/Await";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 
+@RegisterClass
 export class Sound {
     protected static audioContext: AudioContext;
     protected audio: HTMLAudioElement;

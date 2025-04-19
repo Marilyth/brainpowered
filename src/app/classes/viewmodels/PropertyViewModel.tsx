@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { Attribute } from "../models/world/base/Attribute";
+import { Property } from "../models/world/base/Property";
 
 export enum TextType {
     Text = "text",
@@ -7,13 +7,13 @@ export enum TextType {
     Boolean = "boolean",
 }
 
-export class AttributeViewModel {
+export class PropertyViewModel {
     private _name: string;
     private _value: any;
-    public model: Attribute;
+    public model: Property;
     public textType: TextType;
 
-    constructor(model: Attribute) {
+    constructor(model: Property) {
         this.model = model;
         this._name = model.name;
         this._value = model.value;

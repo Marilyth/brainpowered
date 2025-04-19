@@ -9,9 +9,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import Object from "@/app/classes/models/world/base/Object";
 import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
-import Story from "../models/world/base/Story";
+import { Story } from "../models/world/base/Story";
 import { observer } from "mobx-react-lite";
 import WorldNodeViewModel from "../viewmodels/WorldNodeViewModel";
 

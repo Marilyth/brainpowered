@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TextEditor } from "./TextEditor";
 import WorldNodeViewModel from "../viewmodels/WorldNodeViewModel";
 import { Button } from "@/components/ui/button";
-import { AttributeSetting } from "./AttributeSetting";
+import { PropertySetting } from "./PropertySetting";
 import { Separator } from "@/components/ui/separator";
 import { StoryEventSetting } from "./EventSetting";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
@@ -24,13 +24,13 @@ interface ObjectSettingsProps {
 
 export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewModel }) => {
     return (
-        <Tabs defaultValue="attributes" className="h-full">
+        <Tabs defaultValue="properties" className="h-full">
             <TabsList className="w-full">
-                <TabsTrigger value="attributes">Attributes</TabsTrigger>
+                <TabsTrigger value="properties">Properties</TabsTrigger>
                 <TabsTrigger value="actions">Actions</TabsTrigger>
                 <TabsTrigger value="events">Events</TabsTrigger>
             </TabsList>
-            <TabsContent value="attributes" className="overflow-auto space-y-4">
+            <TabsContent value="properties" className="overflow-auto space-y-4">
                 <Card>
                     <CardContent className="space-y-4">
                         <Label>Id</Label>
@@ -60,14 +60,14 @@ export const ObjectSettings: React.FC<ObjectSettingsProps> = observer(({ viewMod
                 </Card>
                 <Card>
                     <CardContent className="space-y-4">
-                        {viewModel.attributes.map((attribute, index) => (
+                        {viewModel.properties.map((property, index) => (
                             <div key={index}>
-                                <AttributeSetting key={index} attribute={attribute} onDelete={(a) => viewModel.removeAttribute(a)}/>
+                                <PropertySetting key={index} property={property} onDelete={(a) => viewModel.removeProperty(a)}/>
                                 <Separator className="my-4" />
                             </div>
                         ))}
 
-                        <Button variant="outline" onClick={() => viewModel.addAttribute()}><FiPlus /> Add attribute</Button>
+                        <Button variant="outline" onClick={() => viewModel.addProperty()}><FiPlus /> Add property</Button>
                     </CardContent>
                 </Card>
             </TabsContent>

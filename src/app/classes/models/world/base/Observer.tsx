@@ -1,7 +1,11 @@
 import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+import { Type } from "class-transformer";
 
+@RegisterClass
 export class Observer extends Coordinates {
     private facingDirection!: Coordinates;
+
     private basisCoordinateSystem = [
         new Coordinates(0, 0, 1), // Forward
         new Coordinates(1, 0, 0), // Right

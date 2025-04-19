@@ -2,12 +2,14 @@ import { Action } from "@/app/classes/models/world/Action";
 import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
 import { Sound } from "@/app/classes/models/world/base/Sound";
 import { Dimensions } from "@/app/classes/models/world/base/Dimensions";
-import { Attribute } from "@/app/classes/models/world/base/Attribute";
+import { Property } from "@/app/classes/models/world/base/Property";
 import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
 import { StoryEvent } from "./StoryEvent";
 import { nodes } from "../NodeCollection";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 
-export abstract class WorldNode {
+@RegisterClass
+export class WorldNode {
     [key: string]: any;
 
     private _id: string;
@@ -29,15 +31,15 @@ export abstract class WorldNode {
 
     public context: string;
     public description: string;
-    public color: string = "#FFFFFF";
+    public color: string = "#AAFFFF";
     public image: string = "";
 
-    public attributes: Attribute[] = [];
+    public properties: Property[] = [];
     public events: StoryEvent[] = [];
     public children: WorldNode[] = [];
+    public parent: WorldNode | null = null;
     public actions: Action[] = [];
     public sounds: Sound[] = [];
-    public parent: WorldNode | null = null;
     public coordinates: Coordinates = new Coordinates(0, 0, 0);
     public dimensions: Dimensions = new Dimensions(1, 1, 1);
     
@@ -129,12 +131,12 @@ export abstract class WorldNode {
             });
         }
         
-        // Add attributes as named properties for ease of access.
-        for (const attribute of this.attributes || []) {
-            Object.defineProperty(flattenedObject, attribute.name, {
-                get: () => attribute.value,
+        // Add properties as named properties for ease of access.
+        for (const property of this.properties || []) {
+            Object.defineProperty(flattenedObject, property.name, {
+                get: () => property.value,
                 set: (value) => {
-                    attribute.value = value;
+                    property.value = value;
                 },
                 enumerable: true,
                 configurable: true
@@ -166,7 +168,7 @@ export abstract class WorldNode {
     }
 
     public async writeAsync(text: string): Promise<void> {
-        await currentTypeWriter.startParsingAsync(text, this);
+        await currentTypeWriter.queueTextAsync(text, this);
     }
 
     /**

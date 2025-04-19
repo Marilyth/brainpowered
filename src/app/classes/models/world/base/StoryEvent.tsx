@@ -1,7 +1,9 @@
 import { events } from "@/app/classes/utility/Events";
 import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
 import { WorldNode } from "./WorldNode";
+import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 
+@RegisterClass
 export class StoryEvent {
     private isRegistered: boolean = false;
     private callable: (...args: any[]) => Promise<void>;
