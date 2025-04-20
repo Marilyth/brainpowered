@@ -8,6 +8,7 @@ import { TargetAndTransition, Transition } from "motion/react";
 import { SynthVoice } from "@/app/classes/utility/SynthVoice";
 import { WorldNode } from "../models/world/base/WorldNode";
 import { Story } from "../models/world/base/Story";
+import WorldNodeViewModel from "./WorldNodeViewModel";
 
 export let currentTypeWriter: TypeWriterViewModel;
 
@@ -22,7 +23,6 @@ export interface TypeWriterProps {
   pitch: number;
   volumes: number[];
 
-
   characterStyle?: React.CSSProperties;
   characterInitial?: TargetAndTransition;
   characterAnimate?: TargetAndTransition;
@@ -30,7 +30,7 @@ export interface TypeWriterProps {
 }
 
 export default class TypeWriterViewModel {
-  public story: Story | null = null;
+  public story: WorldNodeViewModel;
   public renderedTextBlocks: [TypeWriterProps, string[]][] = [];
   public isBusy: boolean = false;
 
@@ -39,7 +39,8 @@ export default class TypeWriterViewModel {
   private lastCharacter: string = "";
   private queue: {text: string, caller: WorldNode | null}[] = [];
   
-  constructor(props: TypeWriterProps) {
+  constructor(props: TypeWriterProps, story: WorldNodeViewModel) {
+    this.story = story;
     makeAutoObservable(this);
     this.propsStack.push(props);
   }
@@ -75,7 +76,7 @@ export default class TypeWriterViewModel {
       if (this.lastCharacter && !/^\s/.test(text) && !/\s$/.test(this.lastCharacter))
         text = " " + text;
 
-      text = this.story?.markNodesInText(text) ?? text;
+      text = this.story.model.markNodesInText(text);
     }
 
     let ongoingText: string = "";
@@ -161,10 +162,10 @@ export default class TypeWriterViewModel {
       script += char;
     }
 
-    let response = (caller ?? this.story)!.evaluateVariableExpression(script);
+    let response = (caller ?? this.story.model)!.evaluateVariableExpression(script);
 
     if (this.story != null)
-      response = this.story.markNodesInText(response);
+      response = this.story.model.markNodesInText(response);
 
     return response + text;
   }

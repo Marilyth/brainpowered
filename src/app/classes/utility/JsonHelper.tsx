@@ -33,6 +33,7 @@ export function serialize(obj: any): string {
  */
 export function deserialize(serialized: string): any {
     const cache: { [key: string]: any } = {};
+    console.log(classRegistry);
 
     const plain: any = JSON.parse(serialized, (key, value) => {
         // If it has a reference id, store it in the cache.

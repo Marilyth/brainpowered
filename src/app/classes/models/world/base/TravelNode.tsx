@@ -5,9 +5,6 @@ import { Action } from "../Action";
 
 @RegisterClass
 export class TravelNode extends WorldNode {
-    public color: string = "#AAAAFF";
-    public moveDescription: string;
-
     /**
      * Initializes a new instance of the Node class.
      * @param name The name of the node.
@@ -21,6 +18,9 @@ export class TravelNode extends WorldNode {
 
         this.addMoveToAction();
     }
+
+    public color: string = "#AAAAFF";
+    public moveDescription: string;
 
     /**
      * Adds the generic check action to the node.

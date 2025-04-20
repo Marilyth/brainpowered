@@ -1,6 +1,7 @@
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 import { WorldNode } from "./WorldNode";
 import { Player } from "../Player";
+import { TravelNode } from "./TravelNode";
 
 @RegisterClass
 export class Story extends WorldNode {
