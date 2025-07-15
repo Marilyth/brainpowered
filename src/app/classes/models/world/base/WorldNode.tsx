@@ -142,27 +142,6 @@ export class WorldNode {
         return flattenedObject;
     }
 
-    /**
-     * A string crawling through the properties of the node using JavaScript's eval function.
-     * @param expression The expression to evaluate. This can be a string containing variables and their values.
-     */
-    public evaluateVariableExpression(expression: string): string {
-        const context: { [key: string]: any } = { global: nodes };
-
-        try {
-            const func = new Function(...Object.keys(context), `return ${expression};`);
-            const result = func.apply(this.getFlattenedObject(), Object.values(context));
-
-            if (result !== undefined)
-                return result.toString();
-
-            return "";
-        } catch (e) {
-            console.error("Expression evaluation error:", e);
-            return "";
-        }
-    }
-
     public async writeAsync(text: string): Promise<void> {
         await currentTypeWriter.queueTextAsync(text, this);
     }
