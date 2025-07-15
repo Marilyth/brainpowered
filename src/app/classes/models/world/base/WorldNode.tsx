@@ -27,6 +27,7 @@ export class WorldNode {
         this.description = description;
 
         this.addCheckAction();
+        nodes[this._id] = this;
     }
 
     public context: string;
@@ -59,6 +60,7 @@ export class WorldNode {
         this._name = value;
         this._id = this.generateId();
         nodes[this._id] = this;
+        console.log(nodes);
     }
 
     /**

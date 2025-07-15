@@ -9,7 +9,6 @@ export class Command {
 
     constructor(onTrigger: (args: string[]) => Promise<void>|void ) {
         this.onTrigger = onTrigger;
-
         makeAutoObservable(this);
     }
 
