@@ -27,7 +27,7 @@ export class Command {
             commandComponents.push(parameter.toString());
         }
 
-        return `[${commandComponents.join(";")}]`;
+        return this.name == "script" ? `\${${commandComponents.join(";")}}` : `[${commandComponents.join(";")}]`;
     }
 
     public clone(): Command {

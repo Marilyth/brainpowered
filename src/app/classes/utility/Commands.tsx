@@ -8,7 +8,7 @@ export const commands: Command[] = []
 
 const writeColoredCommand = new Command(writeColoredAsync);
 commands.push(writeColoredCommand);
-writeColoredCommand.name = "colour";
+writeColoredCommand.name = "color";
 writeColoredCommand.description = "Changes the color of the text.";
 writeColoredCommand.parameters.push(new CommandParameter(CommandParameterType.Color, "color", "The color to change to."));
 writeColoredCommand.parameters.push(new CommandParameter(CommandParameterType.Text, "text", "The text to write."));
@@ -187,17 +187,11 @@ async function emitEventAsync(args: string[]): Promise<void> {
     await events.emitAsync(eventName, eventArgs);
 }
 
-const executeCodeCommand = new Command(executeCodeAsync);
+const executeCodeCommand = new Command(() => {});
 commands.push(executeCodeCommand);
 executeCodeCommand.name = "script";
-executeCodeCommand.description = "Executes a script with the given arguments.";
+executeCodeCommand.description = "Executes a script with the given JavaScript code.";
 executeCodeCommand.parameters.push(new CommandParameter(CommandParameterType.Code, "script", "The JavaScript code to execute."));
-async function executeCodeAsync(args: string[]): Promise<void> {
-    const code = args.join(";");
-
-    const func = new Function("context", `"use strict"; return (async function() { ${code} }).call(context);`);
-    await func.call(null, { currentTypeWriter, events });
-}
 
 export async function runCommand(command: string, args: string[]): Promise<void> {
     const normalCommand = command.toLowerCase();

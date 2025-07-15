@@ -2,12 +2,14 @@ import { observer } from "mobx-react-lite";
 import { CommandParameterType } from "../utility/CommandParameter";
 import { Input } from "@/components/ui/input";
 import { BlockPicker } from "react-color";
-import Editor, {useMonaco} from '@monaco-editor/react';
-import { useEffect, useRef } from "react";
-import { nodes, MonacoLibrary } from "../models/world/NodeCollection";
+import Editor from '@monaco-editor/react';
+import { nodes } from "../models/world/NodeCollection";
+import { MonacoLibrary } from "../utility/MonacoLibrary";
 
 function addMonacoContext(monaco: any) {
     var context = new MonacoLibrary();
+    context.includeVariable(nodes, "global");
+    console.log(context);
 
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
         context.code,
@@ -58,8 +60,6 @@ interface InputComponentProps {
  * @returns A React component that renders the input for the command parameter.
  */
 export const InputComponent: React.FC<InputComponentProps> = observer((props) => {
-    const containerRef = useRef(null);
-
     switch (props.type) {
         case CommandParameterType.Text:
             return <Input value={props.value} onChange={(e) => props.onChange(e.target.value)} />;
@@ -90,7 +90,6 @@ export const InputComponent: React.FC<InputComponentProps> = observer((props) =>
                         options={{
                             automaticLayout: true,
                             lineNumbers: "on",
-                            minimap: { enabled: true },
                             scrollBeyondLastLine: false,
                             placeholder: "global.",
                         }}
