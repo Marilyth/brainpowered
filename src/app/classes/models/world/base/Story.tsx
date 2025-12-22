@@ -2,6 +2,7 @@ import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 import { WorldNode } from "./WorldNode";
 import { Player } from "../Player";
 import { TravelNode } from "./TravelNode";
+import { nodes } from "../NodeCollection";
 
 @RegisterClass
 export class Story extends WorldNode {
@@ -9,6 +10,7 @@ export class Story extends WorldNode {
         super(name, description, longDescription);
 
         this.player = player;
+        this.registerNode();
     }
 
     public player: Player;
@@ -63,5 +65,19 @@ export class Story extends WorldNode {
 
             nearestParent.addChild(node);
         }
+    }
+
+    /**
+     * Registers the node and all its children in the global nodes collection.
+     * This should be called when the node is created or modified.
+     */
+    public registerNode() {
+        Object.keys(nodes).forEach(key => delete nodes[key]);
+        super.registerNode();
+
+        this.traverseNodeTree().forEach(node => {
+            if (node !== this)
+                node.registerNode();
+        });
     }
 }

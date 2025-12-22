@@ -60,6 +60,8 @@ export default function PlayerInterface() {
             const jsonString = e.target?.result as string;
             const loadedStory: Story = deserialize(jsonString) as Story;
             const worldNodeviewModel = new WorldNodeViewModel(loadedStory);
+            worldNodeviewModel.model.registerNode();
+
             const typeWriter = new TypeWriterViewModel({
               opacityAnimationDuration: 0.3, typeSpeed: 50, pitch: 0, volumes: [],
               characterStyle: { fontSize: "20px", color: "#FFFFFF" },

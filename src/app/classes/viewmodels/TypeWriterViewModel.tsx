@@ -9,6 +9,7 @@ import { SynthVoice } from "@/app/classes/utility/SynthVoice";
 import { WorldNode } from "../models/world/base/WorldNode";
 import { Story } from "../models/world/base/Story";
 import WorldNodeViewModel from "./WorldNodeViewModel";
+import { nodes } from "../models/world/NodeCollection";
 
 export let currentTypeWriter: TypeWriterViewModel;
 
@@ -38,6 +39,7 @@ export default class TypeWriterViewModel {
   private macros = new Map<string, string>();
   private lastCharacter: string = "";
   private queue: {text: string, caller: WorldNode | null}[] = [];
+  private cachedScripts: {[key: string]: Function} = {};
   
   constructor(props: TypeWriterProps, story: WorldNodeViewModel) {
     this.story = story;
@@ -145,6 +147,7 @@ export default class TypeWriterViewModel {
     let depth: number = 1;
     let script: string = "";
 
+    // Extract the script from the text.
     for (let i = 2; i < text.length; i++) {
       const char = text[i];
 
@@ -162,10 +165,23 @@ export default class TypeWriterViewModel {
       script += char;
     }
 
-    let response = (caller ?? this.story.model)!.evaluateVariableExpression(script);
+    // Prepare the context for the script execution.
+    const context: { [key: string]: any } = { global: nodes, local: (caller ?? this.story.model)!.getFlattenedObject() };
+
+    // If the script is already cached, use the cached version.
+    if (!this.cachedScripts[script])
+      this.cachedScripts[script] = new Function(...Object.keys(context), `return ${script};`);
+
+    const result = this.cachedScripts[script].apply(null, Object.values(context));
+
+    let response: string = "";
+
+    // If the script returned something tangible, convert it to a string and append it to the response.
+    if (result !== undefined)
+        response = result.toString();
 
     if (this.story != null)
-      response = this.story.model.markNodesInText(response);
+        response = this.story.model.markNodesInText(response);
 
     return response + text;
   }

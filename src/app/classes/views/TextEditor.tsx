@@ -57,7 +57,7 @@ export const TextEditor: React.FC<TextEditorProps> = observer(({ text, placehold
     <div onBlur={() => setIsFocused(false)} onFocus={() => setIsFocused(true)} >
         {/* Command dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <CommandDialog command={selectedCommand!} onInsert={(c) => insertCommand(c)} />
+            <CommandDialog inputValues={[]} command={selectedCommand!} onInsert={(c) => insertCommand(c)} />
         </Dialog>
 
         {/* Label */}
