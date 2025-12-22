@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { FiSend, FiEdit, FiPlay, FiSave, FiDownload, FiUpload } from 'react-icons/fi';
 import React from "react";
-import { Typewriter } from "./Typewriter";
-import { Story } from "../models/world/base/Story";
-import { demo } from "../models/world/stories/Demo/Demo";
+import { Typewriter } from "../classes/views/Typewriter";
+import { Story } from "../classes/models/world/base/Story";
+import { demo } from "../classes/models/world/stories/Demo/Demo";
 import TypeWriterViewModel, { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
 import {
   Card,
@@ -16,19 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { StoryEditor } from "./StoryEditor";
+import { StoryEditor } from "../classes/views/StoryEditor";
 import { setCurrentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
-import WorldNodeViewModel from "../viewmodels/WorldNodeViewModel";
-import { deserialize, serialize } from "../utility/JsonHelper";
+import WorldNodeViewModel from "../classes/viewmodels/WorldNodeViewModel";
+import { deserialize, serialize } from "../classes/utility/JsonHelper";
 
-enum ViewState {
-  Story,
-  Editor,
-}
-
-export default function PlayerInterface() {
+export default function EditInterface() {
     const [actionText, setActionText] = useState("");
-    const [viewState, setViewState] = useState<ViewState>(ViewState.Story);
     const [story, setStory] = useState<WorldNodeViewModel>(new WorldNodeViewModel(demo));
     const [typeWriterViewModel, setTypeWriter] = useState(new TypeWriterViewModel({
       opacityAnimationDuration: 0.3, typeSpeed: 50, pitch: 0, volumes: [],
@@ -112,48 +106,14 @@ export default function PlayerInterface() {
                 <div className="flex justify-center w-full text-yellow-500">{story.name}</div>
                 <Button variant="outline" onClick={loadStory}><FiUpload/></Button>
                 <Button variant="outline" onClick={saveStory}><FiDownload/></Button>
-                <Button onClick={() => setViewState((viewState + 1) % 2)} variant="outline">
-                  {viewState === ViewState.Story ? 
-                    <FiEdit/> 
-                  : 
-                    <FiPlay/>
-                  }
-
-                </Button>
               </div>
             </CardTitle>
             <Separator />
           </CardHeader>
           <CardContent className="h-0 flex-grow overflow-auto"  >
-            {viewState === ViewState.Story && (
-              <Typewriter viewModel={typeWriterViewModel} />
-            )}
-            {viewState === ViewState.Editor && (
               <StoryEditor storyNode={story} />
-            )}
           </CardContent>
         </Card>
-        {viewState === ViewState.Story && (
-          <div className="relative">
-            <Input
-              className="pr-12"
-              ref={playerInput}
-              type="text"
-              value={actionText}
-              onChange={(e) => setActionText(e.target.value)}
-              placeholder="What do you do?"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  ProcessInputAsync();
-                }
-              }}
-            />
-            <Button onClick={ProcessInputAsync} className="absolute right-2 top-1/2 transform -translate-y-1/2 p-0 bg-transparent text-gray-500 hover:bg-transparent">
-              <FiSend/>
-            </Button>
-          </div>
-        )}
-        
       </div>
     );
   }

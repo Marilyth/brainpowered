@@ -1,6 +1,6 @@
-import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
+import { Coordinates } from "@/app/classes/models/base/Coordinates";
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
-import { Type } from "class-transformer";
+import { events } from "../../utility/Events";
 
 @RegisterClass
 export class Observer extends Coordinates {
@@ -12,9 +12,8 @@ export class Observer extends Coordinates {
         new Coordinates(0, 1, 0) // Up
     ];
 
-    constructor(public x: number, public y: number, public z: number) {
-        super(x, y, z);
-
+    constructor(_x: number, _y: number, _z: number, nodeId: string = "") {
+        super(_x, _y, _z, nodeId);
         this.setFacingDirection(new Coordinates(0, 0, 1));
     }
 
@@ -34,6 +33,8 @@ export class Observer extends Coordinates {
         this.basisCoordinateSystem[0] = this.facingDirection; // Forward
         this.basisCoordinateSystem[1] = right;
         this.basisCoordinateSystem[2] = up;
+
+        events.emitAsync("observer_direction_changed", this.nodeId);
     }
 
     /**

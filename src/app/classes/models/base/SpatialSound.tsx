@@ -1,6 +1,6 @@
-import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
-import { Observer } from "@/app/classes/models/world/base/Observer";
-import { Sound } from "@/app/classes/models/world/base/Sound";
+import { Coordinates } from "@/app/classes/models/base/Coordinates";
+import { Observer } from "@/app/classes/models/base/Observer";
+import { Sound } from "@/app/classes/models/base/Sound";
 import { events } from "@/app/classes/utility/Events";
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 

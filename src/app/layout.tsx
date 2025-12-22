@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./classes/views/AppSidebar";
+import { useTheme } from "next-themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,19 +17,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Brainpowered",
-  description: "Brainpowered stories",
-  icons: {
-    icon: "/BrainpoweredMask.png", // This adds the logo to the browser tab
-  },
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { setTheme } = useTheme();
+  setTheme("dark");
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <body

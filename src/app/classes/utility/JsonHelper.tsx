@@ -10,16 +10,9 @@ export function RegisterClass(target: any) {
  * @returns The serialized JSON string.
  */
 export function serialize(obj: any): string {
-    const cache = new Set();
-    let refId = 0;
-
     return JSON.stringify(obj, (key, value) => {
-        if (cache.has(value)) {
-            return `$ref:${value.__refId}`;
-        } else if (typeof value === "object" && value !== null) {
-            value.__refId = refId++;
+        if (typeof value === "object" && value !== null) {
             value.__type = value.constructor.name;
-            cache.add(value);
         }
 
         return value;
@@ -32,7 +25,6 @@ export function serialize(obj: any): string {
  * @returns The deserialized object.
  */
 export function deserialize(serialized: string): any {
-    const cache: { [key: string]: any } = {};
     console.log(classRegistry);
 
     const plain: any = JSON.parse(serialized, (key, value) => {
@@ -49,37 +41,10 @@ export function deserialize(serialized: string): any {
 
                 value = instance;
             }
-
-            cache[value.__refId] = value;
-            delete value.__refId;
         }
 
         return value;
     });
 
-    // Iterate through the plain object and replace reference ids with the actual objects.
-    replaceReferences(plain, cache);
-
     return plain;
-}
-
-/**
- * Iterates through an object and replaces reference ids with the actual objects from the cache.
- * @param obj The object to iterate through.
- * @param cache The cache of objects to replace references with.
- * @returns The object with references replaced.
- */
-function replaceReferences(obj: any, cache: { [key: string]: any }): void {
-    if (typeof obj === "object" && obj !== null) {
-        for (const key in obj) {
-            if (typeof obj[key] === "string" && obj[key].startsWith("$ref:")) {
-                const refId = obj[key].slice(5);
-                obj[key] = cache[refId];
-            }
-            else{
-                // Recursively replace references in nested objects.
-                replaceReferences(obj[key], cache);
-            }
-        }
-    }
 }

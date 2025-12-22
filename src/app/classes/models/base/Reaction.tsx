@@ -1,15 +1,15 @@
 import { events } from "@/app/classes/utility/Events";
-import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
-import { WorldNode } from "./WorldNode";
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+import { WorldNodeProperty } from "./WorldNodeProperty";
 
 @RegisterClass
-export class StoryEvent {
+export class Reaction extends WorldNodeProperty {
     private isRegistered: boolean = false;
     private callable: (...args: any[]) => Promise<void>;
 
-    public constructor(public eventName: string, public response: string, public parent: WorldNode) {
-        this.callable = this.handleEvent.bind(this);
+    public constructor(public eventName: string, public response: string, nodeId: string) {
+        super(nodeId);
+        this.callable = this.handleReaction.bind(this);
         this.register();
     }
 
@@ -29,13 +29,16 @@ export class StoryEvent {
         this.isRegistered = false;
     }
 
-    private async handleEvent(...args: any[]): Promise<void> {
+    private async handleReaction(...args: any[]): Promise<void> {
         // Replace $\d+ with the actual arguments passed to the event.
         const argMatcher = /\$(\d+)/g;
         const formattedResponse = this.response.replace(argMatcher, (_, index) => {
             return args[parseInt(index)] || "";
         });
 
-        await this.parent.writeAsync(formattedResponse);
+        // EventName contains the id of the parent node. No need to save a reference.
+        const eventId = `${this.nodeId}_${this.eventName}`;
+        await events.emitAsync("write_requested", formattedResponse, eventId);
+        await events.emitAsync("reaction_triggered", eventId);
     }
 }

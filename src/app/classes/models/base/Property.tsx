@@ -1,11 +1,13 @@
 import { events } from "@/app/classes/utility/Events";
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+import { WorldNodeProperty } from "./WorldNodeProperty";
 
 @RegisterClass
-export class Property {
+export class Property extends WorldNodeProperty {
     private _value: any;
 
-    public constructor(public name: string, value: any) {
+    public constructor(public name: string, value: any, nodeId: string) {
+        super(nodeId);
         this._value = value;
     }
 
@@ -15,6 +17,8 @@ export class Property {
 
     public set value(value: any) {
         this._value = value;
-        events.emitAsync(`property_changed:${this.name}`);
+        const eventId = `${this.nodeId}_${this.name}`;
+
+        events.emitAsync("property_changed", eventId);
     }
 }

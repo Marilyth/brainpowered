@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 "use client";
 
 import React from "react";
@@ -6,10 +7,9 @@ import { runCommand } from "@/app/classes/utility/Commands";
 import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
 import { SynthVoice } from "@/app/classes/utility/SynthVoice";
-import { WorldNode } from "../models/world/base/WorldNode";
-import { Story } from "../models/world/base/Story";
-import WorldNodeViewModel from "./WorldNodeViewModel";
-import { nodes } from "../models/world/NodeCollection";
+import { WorldNode } from "../models/WorldNode";
+import { Story } from "../models/Story";
+import { events } from "../utility/Events";
 
 export let currentTypeWriter: TypeWriterViewModel;
 
@@ -31,7 +31,7 @@ export interface TypeWriterProps {
 }
 
 export default class TypeWriterViewModel {
-  public story: WorldNodeViewModel;
+  public story: Story;
   public renderedTextBlocks: [TypeWriterProps, string[]][] = [];
   public isBusy: boolean = false;
 
@@ -41,10 +41,26 @@ export default class TypeWriterViewModel {
   private queue: {text: string, caller: WorldNode | null}[] = [];
   private cachedScripts: {[key: string]: Function} = {};
   
-  constructor(props: TypeWriterProps, story: WorldNodeViewModel) {
+  constructor(props: TypeWriterProps, story: Story) {
     this.story = story;
     makeAutoObservable(this);
     this.propsStack.push(props);
+
+    events.on("write_requested", async (text: string, callerId: string) => {
+      let caller = null;
+      
+      // Try to find the caller in the story node dictionary.
+      if (callerId != null) {
+        const idPart = callerId.split("_")[0];
+
+        if (idPart in this.story.getDictionary())
+          caller = this.story.getDictionary()[idPart] as WorldNode;
+        else
+          console.warn(`Caller with id ${callerId} not found in story node dictionary. Falling back to null caller.`);
+      }
+
+      await this.queueTextAsync(text, caller);
+    });
   }
 
   /**
@@ -78,7 +94,7 @@ export default class TypeWriterViewModel {
       if (this.lastCharacter && !/^\s/.test(text) && !/\s$/.test(this.lastCharacter))
         text = " " + text;
 
-      text = this.story.model.markNodesInText(text);
+      text = this.story.markNodesInText(text);
     }
 
     let ongoingText: string = "";
@@ -166,7 +182,7 @@ export default class TypeWriterViewModel {
     }
 
     // Prepare the context for the script execution.
-    const context: { [key: string]: any } = { global: nodes, local: (caller ?? this.story.model)!.getFlattenedObject() };
+    const context: { [key: string]: any } = { global: this.story.getDictionary(), local: (caller ?? this.story.getDictionary()) };
 
     // If the script is already cached, use the cached version.
     if (!this.cachedScripts[script])
@@ -181,7 +197,7 @@ export default class TypeWriterViewModel {
         response = result.toString();
 
     if (this.story != null)
-        response = this.story.model.markNodesInText(response);
+        response = this.story.markNodesInText(response);
 
     return response + text;
   }

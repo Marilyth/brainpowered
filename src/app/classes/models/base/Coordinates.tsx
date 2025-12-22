@@ -1,8 +1,40 @@
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+import { WorldNodeProperty } from "./WorldNodeProperty";
+import { events } from "../../utility/Events";
 
 @RegisterClass
-export class Coordinates {
-    constructor(public x: number, public y: number, public z: number) { }
+export class Coordinates extends WorldNodeProperty {
+
+    constructor(private _x: number, private _y: number, private _z: number, nodeId: string = "") {
+        super(nodeId);
+    }
+
+    public get x(): number {
+        return this._x;
+    }
+
+    public get y(): number {
+        return this._y;
+    }
+
+    public get z(): number {
+        return this._z;
+    }
+
+    public set x(value: number) {
+        this._x = value;
+        this.notifyCoordinatesChanged();
+    }
+
+    public set y(value: number) {
+        this._y = value;
+        this.notifyCoordinatesChanged();
+    }
+
+    public set z(value: number) {
+        this._z = value;
+        this.notifyCoordinatesChanged();
+    }
 
     public equals(other: Coordinates): boolean {
         return this.x === other.x && this.y === other.y && this.z === other.z;
@@ -53,5 +85,9 @@ export class Coordinates {
      */
     public magnitude(): number {
         return this.dotProduct(this);
+    }
+
+    private notifyCoordinatesChanged(): void {
+        events.emitAsync("coordinates_changed", this.nodeId);
     }
 }
