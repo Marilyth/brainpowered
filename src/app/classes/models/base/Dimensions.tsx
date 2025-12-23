@@ -1,11 +1,18 @@
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 import { WorldNodeProperty } from "./WorldNodeProperty";
 import { events } from "../../utility/Events";
+import { makeObservable } from "mobx";
 
 @RegisterClass
 export class Dimensions extends WorldNodeProperty {
     constructor(private _width: number, private _depth: number, private _height: number, nodeId: string) {
         super(nodeId);
+
+        makeObservable(this, {
+            _width: true,
+            _depth: true,
+            _height: true,
+        } as any);
     }
 
     public get width(): number {

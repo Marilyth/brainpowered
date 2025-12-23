@@ -5,14 +5,13 @@ import {
     ContextMenuItem,
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { WorldNode } from '@/app/classes/models/world/base/WorldNode';
 import { observer } from 'mobx-react-lite';
 import { meterToHtmlScale } from './Canvas';
-import WorldNodeViewModel from '../viewmodels/WorldNodeViewModel';
+import SelectableWorldNode from '../viewmodels/SelectableWorldNode';
   
 interface CanvasObjectProps {
-  viewModel: WorldNodeViewModel;
-  onSelectionChanged: (node: WorldNodeViewModel) => void;
+  viewModel: SelectableWorldNode;
+  onSelectionChanged: (node: SelectableWorldNode) => void;
 }
 
 export const CanvasObject: React.FC<CanvasObjectProps> = observer(({ viewModel, onSelectionChanged }) => {
@@ -29,27 +28,38 @@ export const CanvasObject: React.FC<CanvasObjectProps> = observer(({ viewModel, 
   return (
     <ContextMenu>
         <ContextMenuTrigger >
-            <div onClick={onClicked} className="w-full h-full backdrop-blur-[16px] bg-[#333333b0]" style={{ borderColor: viewModel.isSelected ? '#888822f0' : '#000000', borderWidth: viewModel.dimensions.width * meterToHtmlScale / 50 }}>
-                <div className="text-center p-2" style={{ color: viewModel.color, fontSize: viewModel.dimensions.width * meterToHtmlScale / 10 }}>
-                  {viewModel.name}
-                </div>
-
-                {viewModel.children.map((node, index) => (
-                    <div key={index} className="absolute"
-                        style={{ left: node.coordinates.x * meterToHtmlScale,
-                                  top: node.coordinates.y * meterToHtmlScale,
-                                  width: node.dimensions.width * meterToHtmlScale,
-                                  height: node.dimensions.depth * meterToHtmlScale,
-                                  transition: '0.1s'
-                                   }}>
-                      <CanvasObject key={index} viewModel={node} onSelectionChanged={onSelectionChanged} />
-                    </div>
-                  ))}
+            <div
+              onClick={onClicked}
+              className="absolute border-3 border cursor-pointer"
+              style={{
+                borderColor: viewModel.node.color + "55",
+                background: viewModel.node.color + "20",
+                left: viewModel.node.coordinates.x * meterToHtmlScale,
+                top: viewModel.node.coordinates.y * meterToHtmlScale,
+                width: viewModel.node.dimensions.width * meterToHtmlScale,
+                height: viewModel.node.dimensions.depth * meterToHtmlScale,
+              }}
+            >
+              <div
+                className="text-center overflow-hidden p-1 text-ellipsis"
+                style={{
+                  background: viewModel.node.color + "55",
+                  color: viewModel.node.color,
+                  fontSize:
+                    (Math.min(
+                      viewModel.node.dimensions.width,
+                      viewModel.node.dimensions.depth
+                    ) *
+                      meterToHtmlScale) /
+                    10,
+                }}
+              >
+                {viewModel.node.name}
+              </div>
             </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
-            <ContextMenuItem onClick={(e) => e.stopPropagation()} onSelect={onNewChildObject}>Add child object to {viewModel.name}</ContextMenuItem>
-            <ContextMenuItem>Add child location to {viewModel.name}</ContextMenuItem>
+            <ContextMenuItem onClick={(e) => e.stopPropagation()} onSelect={onNewChildObject}>Add child object to {viewModel.node.name}</ContextMenuItem>
         </ContextMenuContent>
     </ContextMenu>
   );

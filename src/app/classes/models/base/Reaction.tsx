@@ -1,6 +1,7 @@
 import { events } from "@/app/classes/utility/Events";
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 import { WorldNodeProperty } from "./WorldNodeProperty";
+import { makeObservable } from "mobx";
 
 @RegisterClass
 export class Reaction extends WorldNodeProperty {
@@ -11,6 +12,11 @@ export class Reaction extends WorldNodeProperty {
         super(nodeId);
         this.callable = this.handleReaction.bind(this);
         this.register();
+
+        makeObservable(this, {
+            eventName: true,
+            response: true,
+        } as any);
     }
 
     public register(): void {

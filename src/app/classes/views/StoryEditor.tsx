@@ -1,27 +1,23 @@
 "use client";
 
-import { Separator } from "@/components/ui/separator";
 import Canvas from "@/app/classes/views/Canvas";
 import { ObjectSettings } from "@/app/classes/views/ObjectSettings";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { Coordinates } from "@/app/classes/models/world/base/Coordinates";
-import { Story } from "../models/world/base/Story";
 import { observer } from "mobx-react-lite";
-import WorldNodeViewModel from "../viewmodels/WorldNodeViewModel";
+import SelectableWorldNode from "../viewmodels/SelectableWorldNode";
+import { appContext } from "@/app/context";
+import { makeAutoObservable, observable } from "mobx";
 
-interface StoryEditorProps {
-  storyNode: WorldNodeViewModel;
-}
+export const StoryEditor = observer(() => {
+  const selectableNodes = observable.array(appContext.currentStory.nodesList.map(node => makeAutoObservable({node: node, isSelected: false}) as SelectableWorldNode));
+  const [selectedNode, setSelectedNode] = useState<SelectableWorldNode | null>(null);
 
-export const StoryEditor: React.FC<StoryEditorProps> = observer(({ storyNode }) => {
-  const [selectedNode, setSelectedNode] = useState(storyNode);
-
-  function onSelectionChanged(node: WorldNodeViewModel) {
+  function onSelectionChanged(node: SelectableWorldNode) {
     if (selectedNode != null)
       selectedNode.isSelected = false;
 
@@ -32,16 +28,21 @@ export const StoryEditor: React.FC<StoryEditorProps> = observer(({ storyNode }) 
   };
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="rounded-lg border">
+    <ResizablePanelGroup direction="horizontal">
       <ResizablePanel defaultSize={100}>
         <div className="p-4 h-full">
-          <Canvas rootNode={storyNode} onSelectionChanged={onSelectionChanged} />
+          <Canvas onSelectionChanged={onSelectionChanged} nodesList={selectableNodes} />
         </div>
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={30}>
         <div className="p-4 h-full">
-          <ObjectSettings viewModel={selectedNode} />
+          <div className="flex flex-row whitespace-pre justify-center mb-4">
+            Editing <div className="text-yellow-500">{appContext.currentStory.name}</div>
+          </div>
+          {selectedNode != null && (
+            <ObjectSettings viewModel={selectedNode} />
+          )}
         </div>
       </ResizablePanel>
     </ResizablePanelGroup>

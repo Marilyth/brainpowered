@@ -1,12 +1,19 @@
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 import { WorldNodeProperty } from "./WorldNodeProperty";
 import { events } from "../../utility/Events";
+import { makeObservable } from "mobx";
 
 @RegisterClass
 export class Coordinates extends WorldNodeProperty {
 
     constructor(private _x: number, private _y: number, private _z: number, nodeId: string = "") {
         super(nodeId);
+
+        makeObservable(this, {
+            _x: true,
+            _y: true,
+            _z: true,
+        } as any);
     }
 
     public get x(): number {
@@ -23,6 +30,7 @@ export class Coordinates extends WorldNodeProperty {
 
     public set x(value: number) {
         this._x = value;
+        console.log("X set to " + value);
         this.notifyCoordinatesChanged();
     }
 

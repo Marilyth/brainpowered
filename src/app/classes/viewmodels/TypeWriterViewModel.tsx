@@ -8,14 +8,8 @@ import { makeAutoObservable } from "mobx";
 import { TargetAndTransition, Transition } from "motion/react";
 import { SynthVoice } from "@/app/classes/utility/SynthVoice";
 import { WorldNode } from "../models/WorldNode";
-import { Story } from "../models/Story";
 import { events } from "../utility/Events";
-
-export let currentTypeWriter: TypeWriterViewModel;
-
-export function setCurrentTypeWriter(viewModel: TypeWriterViewModel): void {
-  currentTypeWriter = viewModel;
-}
+import { appContext } from "@/app/context";
 
 export interface TypeWriterProps {
   opacityAnimationDuration: number;
@@ -31,7 +25,6 @@ export interface TypeWriterProps {
 }
 
 export default class TypeWriterViewModel {
-  public story: Story;
   public renderedTextBlocks: [TypeWriterProps, string[]][] = [];
   public isBusy: boolean = false;
 
@@ -41,8 +34,7 @@ export default class TypeWriterViewModel {
   private queue: {text: string, caller: WorldNode | null}[] = [];
   private cachedScripts: {[key: string]: Function} = {};
   
-  constructor(props: TypeWriterProps, story: Story) {
-    this.story = story;
+  constructor(props: TypeWriterProps) {
     makeAutoObservable(this);
     this.propsStack.push(props);
 
@@ -53,8 +45,8 @@ export default class TypeWriterViewModel {
       if (callerId != null) {
         const idPart = callerId.split("_")[0];
 
-        if (idPart in this.story.getDictionary())
-          caller = this.story.getDictionary()[idPart] as WorldNode;
+        if (idPart in appContext.currentStory!.getDictionary())
+          caller = appContext.currentStory!.getDictionary()[idPart] as WorldNode;
         else
           console.warn(`Caller with id ${callerId} not found in story node dictionary. Falling back to null caller.`);
       }
@@ -94,7 +86,7 @@ export default class TypeWriterViewModel {
       if (this.lastCharacter && !/^\s/.test(text) && !/\s$/.test(this.lastCharacter))
         text = " " + text;
 
-      text = this.story.markNodesInText(text);
+      text = appContext.currentStory!.markNodesInText(text);
     }
 
     let ongoingText: string = "";
@@ -182,7 +174,7 @@ export default class TypeWriterViewModel {
     }
 
     // Prepare the context for the script execution.
-    const context: { [key: string]: any } = { global: this.story.getDictionary(), local: (caller ?? this.story.getDictionary()) };
+    const context: { [key: string]: any } = { global: appContext.currentStory!.getDictionary(), local: (caller ?? appContext.currentStory!.getDictionary()) };
 
     // If the script is already cached, use the cached version.
     if (!this.cachedScripts[script])
@@ -196,8 +188,8 @@ export default class TypeWriterViewModel {
     if (result !== undefined)
         response = result.toString();
 
-    if (this.story != null)
-        response = this.story.markNodesInText(response);
+    if (appContext.currentStory != null)
+        response = appContext.currentStory!.markNodesInText(response);
 
     return response + text;
   }

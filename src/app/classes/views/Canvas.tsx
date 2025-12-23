@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     ContextMenu,
     ContextMenuContent,
@@ -8,22 +8,25 @@ import {
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { FiMinimize } from 'react-icons/fi';
-import { WorldNode } from '@/app/classes/models/world/base/WorldNode';
+import { WorldNode } from '@/app/classes/models/WorldNode';
 import { observer } from 'mobx-react-lite';
 import CanvasObject from '@/app/classes/views/CanvasObject';
-import WorldNodeViewModel from '../viewmodels/WorldNodeViewModel';
+import SelectableWorldNode from '../viewmodels/SelectableWorldNode';
+import { appContext } from '@/app/context';
 
 export const meterToHtmlScale = 100;
 
 interface CanvasProps {
-  rootNode: WorldNodeViewModel;
-  onSelectionChanged: (node: WorldNodeViewModel) => void;
+  onSelectionChanged: (node: SelectableWorldNode) => void;
+  nodesList: SelectableWorldNode[];
 }
 
-const Canvas: React.FC<CanvasProps> = observer(({ rootNode, onSelectionChanged }) => {
+const Canvas: React.FC<CanvasProps> = observer(({ nodesList, onSelectionChanged }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0, left: 0, top: 0 });
+  const [gridSize, setGridSize] = useState(100);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (e.buttons === 4) {
@@ -38,67 +41,147 @@ const Canvas: React.FC<CanvasProps> = observer(({ rootNode, onSelectionChanged }
     const relativeX = ((e.clientX - e.currentTarget.getBoundingClientRect().left - offset.x) / scale) / meterToHtmlScale;
     const relativeY = ((e.clientY - e.currentTarget.getBoundingClientRect().top - offset.y) / scale) / meterToHtmlScale;
 
-    setMousePosition({ x: relativeX, y: relativeY  });
+    setMousePosition({ x: relativeX, y: relativeY});
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    setScale((prev) => prev + (prev / 10) * (e.deltaY > 0 ? -1 : 1));
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    e.preventDefault();
+
+    const zoomIntensity = 0.1;
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    // Mouse position relative to the canvas
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    setScale((prevScale) => {
+      const zoomDirection = e.deltaY > 0 ? -1 : 1;
+      const newScale = prevScale + prevScale * zoomIntensity * zoomDirection;
+
+      // Calculate world position of cursor before zoom.
+      const worldX = (mouseX - offset.x) / prevScale;
+      const worldY = (mouseY - offset.y) / prevScale;
+
+      // Compute new offset so that the world point under cursor stays fixed.
+      const newOffsetX = mouseX - worldX * newScale;
+      const newOffsetY = mouseY - worldY * newScale;
+
+      // Update offset alongside scale.
+      setOffset({ x: newOffsetX, y: newOffsetY });
+
+      return newScale;
+    });
   };
+
+  function calculateCanvasSize() {
+    const left = Math.min(...nodesList.map(node => node.node.coordinates.x)) * meterToHtmlScale;
+    const top = Math.min(...nodesList.map(node => node.node.coordinates.y)) * meterToHtmlScale;
+    const right = Math.max(...nodesList.map(node => node.node.coordinates.x + node.node.dimensions.width)) * meterToHtmlScale;
+    const bottom = Math.max(...nodesList.map(node => node.node.coordinates.y + node.node.dimensions.depth)) * meterToHtmlScale;
+
+    setCanvasSize({
+      left: left,
+      top: top,
+      width: right - left,
+      height: bottom - top
+    });
+  }
+
+  useEffect(() => {
+    const nearest2Exponent = Math.round(Math.log2(1 / scale));
+    const gridUnit = Math.pow(2, nearest2Exponent);
+
+    setGridSize(meterToHtmlScale * scale * gridUnit);
+  }, [scale]);
+
+  useEffect(() => {
+    calculateCanvasSize();
+  }, [appContext.currentStory.nodesList]);
 
   return (
-    <div className='w-full h-full overflow-hidden bg-[#ffffff10] relative rounded-lg'
-      onWheel={handleWheel} 
-      onMouseMove={handleMouseMove}>
-        <ContextMenu>
-            <ContextMenuTrigger >
-                <div
-                  className="w-full h-full relative"
-                  style={{
-                      transform: `translate(${offset.x}px, ${offset.y}px)`,
-                  }}
-                  >
-                    <div
-                      className="w-full h-full relative"
-                      style={{
-                          transform: `scale(${scale})`,
-                          transformOrigin: 'top left',
-                          transition: '0.1s'
-                      }}
-                      >
-                      <div className="absolute"
-                          style={{ left: rootNode.coordinates.x * meterToHtmlScale,
-                                    top: rootNode.coordinates.y * meterToHtmlScale,
-                                    width: rootNode.dimensions.width * meterToHtmlScale,
-                                    height: rootNode.dimensions.depth * meterToHtmlScale }}>
-                        <CanvasObject viewModel={rootNode} onSelectionChanged={onSelectionChanged} />
-                      </div>
-                    </div>
-                </div>
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-                <ContextMenuItem>Add object</ContextMenuItem>
-                <ContextMenuItem>Add location</ContextMenuItem>
-            </ContextMenuContent>
-        </ContextMenu>
-        
-        <div className="absolute top-0 left-0 p-2">
-          <Button onClick={() => {setScale(1); setOffset({x: 0, y: 0});}}><FiMinimize/>Reset</Button>
-        </div>
-
-        <div className="absolute bottom-0 left-0 p-2 bg-[#00000080] rounded-tr-lg">
-          <Label>Position: {mousePosition.x.toFixed(2)}x {mousePosition.y.toFixed(2)}y</Label>
-          <Label>Scale: {scale.toFixed(2)}x</Label>
-        </div>
-
-        <div className="absolute bottom-0 p-2 right-1/2 border-t-2 flex justify-center"
+    <div
+      className="w-full h-full overflow-hidden relative bg-foreground/10 rounded-md"
+      onWheel={handleWheel}
+      onMouseMove={handleMouseMove}
+    >
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div
+            className="absolute inset-0"
             style={{
-              width: meterToHtmlScale
-            }}>
-          <Label>
-            {(1 / scale).toFixed(2)}m
-          </Label>
-        </div>
+              backgroundImage: `
+                linear-gradient(to right, rgba(255,255,255, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255, 0.1) 1px, transparent 1px)
+              `,
+              backgroundSize: `${gridSize}px ${gridSize}px`,
+              backgroundPosition: `${offset.x % gridSize}px ${offset.y % gridSize}px`,
+            }}
+          />
+
+          {/* Canvas content */}
+          <div
+            className="w-full h-full relative"
+            style={{
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+              transformOrigin: "top left"
+            }}
+          >
+            <div
+              className="absolute"
+              style={{
+                left: canvasSize.left,
+                top: canvasSize.top,
+                width: canvasSize.width,
+                height: canvasSize.height,
+              }}
+            >
+              {nodesList.map((node) => (
+                <CanvasObject
+                  key={node.node.id}
+                  viewModel={node}
+                  onSelectionChanged={onSelectionChanged}
+                />
+              ))}
+            </div>
+          </div>
+        </ContextMenuTrigger>
+
+        <ContextMenuContent>
+          <ContextMenuItem>Add object</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
+
+      {/* UI overlays */}
+      <div className="absolute top-0 left-0 p-2">
+        <Button
+          onClick={() => {
+            setScale(1);
+            setOffset({ x: 0, y: 0 });
+          }}
+        >
+          <FiMinimize /> Reset
+        </Button>
+      </div>
+
+      <div className="absolute bottom-0 left-0 p-2 bg-[#00000080] rounded-tr-lg">
+        <Label>
+          Position: {mousePosition.x.toFixed(2)}x {mousePosition.y.toFixed(2)}y
+        </Label>
+        <Label>Scale: {scale.toFixed(2)}x</Label>
+      </div>
+
+      <div
+        className="absolute bottom-0 left-1/2 border-t-2 border-t-foreground flex justify-center p-2"
+        style={{
+          width: gridSize,
+          transform: "translateX(-50%)",
+        }}
+      >
+        <Label>{(gridSize / meterToHtmlScale / scale).toFixed(2)}m</Label>
+      </div>
+
     </div>
+
   );
 });
 

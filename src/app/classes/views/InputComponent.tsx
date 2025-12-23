@@ -3,12 +3,12 @@ import { CommandParameterType } from "../utility/CommandParameter";
 import { Input } from "@/components/ui/input";
 import { BlockPicker } from "react-color";
 import Editor from '@monaco-editor/react';
-import { nodes } from "../models/world/NodeCollection";
 import { MonacoLibrary } from "../utility/MonacoLibrary";
+import { appContext } from "@/app/context";
 
 function addMonacoContext(monaco: any) {
-    var context = new MonacoLibrary();
-    context.includeVariable(nodes, "global");
+    const context = new MonacoLibrary();
+    context.includeVariable(appContext.currentStory, "global");
     console.log(context);
 
     monaco.languages.typescript.typescriptDefaults.addExtraLib(

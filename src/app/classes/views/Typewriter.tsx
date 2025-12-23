@@ -3,13 +3,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import TypeWriterViewModel from "@/app/classes/viewmodels/TypeWriterViewModel";
+import { appContext } from "@/app/context";
 
-interface TypeWriterViewProps {
-  viewModel: TypeWriterViewModel;
-}
-
-export const Typewriter: React.FC<TypeWriterViewProps> = observer(({ viewModel }) => {
+export const Typewriter: React.FC = observer(() => {
     /**
      * Takes the first character from the animating list and adds it to the static text.
      */
@@ -21,7 +17,7 @@ export const Typewriter: React.FC<TypeWriterViewProps> = observer(({ viewModel }
       <div key="typewriter-span" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
         {
             // Display the animating text.
-            viewModel.renderedTextBlocks.map((span, i) => (
+            appContext.currentTypeWriter?.renderedTextBlocks.map((span, i) => (
               <span key={i} style={{ display: "inline", ...span[0].characterStyle }}>
                 {span[1].map((char, j) => (
                   <motion.span

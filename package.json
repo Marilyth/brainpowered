@@ -1,11 +1,12 @@
 {
   "name": "mindgames",
-  "homepage": "https://www.mayiscoding.com",
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "scaffold": "sh scaffold-api.sh",
     "dev": "next dev --turbopack",
     "build": "next build && node postbuild.js",
+    "postbuild": "touch docs/.nojekyll && echo 'brainpowered.mayiscoding.com' > docs/CNAME",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest"

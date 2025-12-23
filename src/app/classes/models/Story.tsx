@@ -70,6 +70,9 @@ export class Story {
     public addNode(node: WorldNode): void {
         this.nodesList.push(node);
 
+        if (!node.id)
+            node.id = this.generateId(node.name);
+
         // ToDo: Sort the list by x coordinate for easier spatial reasoning. But do it better.
         // this.nodesList.sort((a, b) => a.coordinates.x - b.coordinates.x);
 

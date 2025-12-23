@@ -5,6 +5,7 @@ import { Dimensions } from "./base/Dimensions";
 import { Property } from "./base/Property";
 import { Reaction } from "./base/Reaction";
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
+import { makeAutoObservable } from "mobx";
 
 @RegisterClass
 export class WorldNode {
@@ -29,9 +30,11 @@ export class WorldNode {
 
         // ToDo: Add reactions for entering and exiting presence range.
         // E.g. for playing a sound when the player approaches the node.
+        makeAutoObservable(this);
     }
 
     public name: string;
+    public x: number;
     public context: string;
     public description: string;
     public color: string = "#AAFFFF";

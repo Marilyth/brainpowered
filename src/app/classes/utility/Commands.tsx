@@ -1,4 +1,4 @@
-import { currentTypeWriter } from "@/app/classes/viewmodels/TypeWriterViewModel";
+import { appContext } from "@/app/context";
 import Delay from "./Await";
 import { events } from "./Events";
 import { Command } from "./Command";
@@ -16,12 +16,12 @@ async function writeColoredAsync(args: string[]): Promise<void> {
     const color = args[0];
     const text = args[1];
     
-    currentTypeWriter.getProps().characterInitial!.color = "#FFFFFF";
-    currentTypeWriter.getProps().characterAnimate!.color = color;
+    appContext.currentTypeWriter.getProps().characterInitial!.color = "#FFFFFF";
+    appContext.currentTypeWriter.getProps().characterAnimate!.color = color;
 
-    (currentTypeWriter.getProps().characterTransition as any).color = { duration: 0.3, ease: "easeIn" };
+    (appContext.currentTypeWriter.getProps().characterTransition as any).color = { duration: 0.3, ease: "easeIn" };
 
-    await currentTypeWriter.startParsingAsync(text);
+    await appContext.currentTypeWriter.startParsingAsync(text);
 }
 
 const writeGlowingCommand = new Command(writeGlowingAsync);
@@ -32,10 +32,10 @@ writeGlowingCommand.parameters.push(new CommandParameter(CommandParameterType.Te
 async function writeGlowingAsync(args: string[]): Promise<void> {
     const text = args[0];
     
-    currentTypeWriter.getProps().characterInitial!.textShadow = "0em 0em 0em";
-    currentTypeWriter.getProps().characterAnimate!.textShadow = "0em 0em 0.5em";
+    appContext.currentTypeWriter.getProps().characterInitial!.textShadow = "0em 0em 0em";
+    appContext.currentTypeWriter.getProps().characterAnimate!.textShadow = "0em 0em 0.5em";
 
-    await currentTypeWriter.startParsingAsync(text);
+    await appContext.currentTypeWriter.startParsingAsync(text);
 }
 
 const writeSpeedCommand = new Command(writeSpeedAsync);
@@ -47,9 +47,9 @@ writeSpeedCommand.parameters.push(new CommandParameter(CommandParameterType.Text
 async function writeSpeedAsync(args: string[]): Promise<void> {
     const speed = parseInt(args[0]);
     const text = args[1];
-    currentTypeWriter.getProps().typeSpeed = speed;
+    appContext.currentTypeWriter.getProps().typeSpeed = speed;
 
-    await currentTypeWriter.startParsingAsync(text);
+    await appContext.currentTypeWriter.startParsingAsync(text);
 }
 
 const writeSizeCommand = new Command(writeSizeAsync);
@@ -61,9 +61,9 @@ writeSizeCommand.parameters.push(new CommandParameter(CommandParameterType.Text,
 async function writeSizeAsync(args: string[]): Promise<void> {
     const size = args[0];
     const text = args[1];
-    currentTypeWriter.getProps().characterStyle!.fontSize = size;
+    appContext.currentTypeWriter.getProps().characterStyle!.fontSize = size;
 
-    await currentTypeWriter.startParsingAsync(text);
+    await appContext.currentTypeWriter.startParsingAsync(text);
 }
 
 const writeVoiceCommand = new Command(playVoiceAsync);
@@ -84,10 +84,10 @@ async function playVoiceAsync(args: string[]): Promise<void> {
         overtones.push(gain / (100 * (i + 1)));
     }
 
-    currentTypeWriter.getProps().pitch = pitch;
-    currentTypeWriter.getProps().volumes = overtones;
+    appContext.currentTypeWriter.getProps().pitch = pitch;
+    appContext.currentTypeWriter.getProps().volumes = overtones;
 
-    await currentTypeWriter.startParsingAsync(text);
+    await appContext.currentTypeWriter.startParsingAsync(text);
 }
 
 const writePauseCommand = new Command(pauseAsync);
@@ -118,7 +118,7 @@ async function playSoundAsync(args: string[]): Promise<void> {
 
     if (args.length == 3) {
         const audioPromise = new Promise<void>((resolve) => audio.onended = () => resolve());
-        await currentTypeWriter.startParsingAsync(args[2]);
+        await appContext.currentTypeWriter.startParsingAsync(args[2]);
         await audioPromise;
     }
 }
@@ -171,7 +171,7 @@ fireAndForgetCommand.name = "async";
 fireAndForgetCommand.description = "Executes a command without waiting for it to finish.";
 fireAndForgetCommand.parameters.push(new CommandParameter(CommandParameterType.Text, "text", "The text to write."));
 function fireAndForgetAsync(args: string[]): void {
-    currentTypeWriter.startParsingAsync(args[0]);
+    appContext.currentTypeWriter.startParsingAsync(args[0]);
 }
 
 const emitEventCommand = new Command(emitEventAsync);
