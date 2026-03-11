@@ -1,11 +1,17 @@
+import { makeObservable, observable } from "mobx";
 import { events } from "../../utility/Events";
 import { RegisterClass } from "../../utility/JsonHelper";
 import { WorldNodeProperty } from "./WorldNodeProperty";
 
 @RegisterClass
-export class Action extends WorldNodeProperty {
+export class Interaction extends WorldNodeProperty {
     constructor(public actionAliases: string[], public response: string, nodeId: string) {
         super(nodeId);
+        
+        makeObservable(this, {
+            actionAliases: observable,
+            response: observable,
+        });
     }
 
     public async triggerAsync(): Promise<void> {

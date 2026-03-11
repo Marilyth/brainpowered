@@ -22,6 +22,7 @@ interface CanvasProps {
 }
 
 const Canvas: React.FC<CanvasProps> = observer(({ nodesList, onSelectionChanged }) => {
+  const [contextLocation, setContextLocation] = useState({ x: 0, y: 0, snapX: 0, snapY: 0, snapSize: 0 });
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
@@ -35,8 +36,6 @@ const Canvas: React.FC<CanvasProps> = observer(({ nodesList, onSelectionChanged 
         y: prev.y + e.movementY,
       }));
     }
-
-    const referenceRect = e.currentTarget.getBoundingClientRect();
 
     const relativeX = ((e.clientX - e.currentTarget.getBoundingClientRect().left - offset.x) / scale) / meterToHtmlScale;
     const relativeY = ((e.clientY - e.currentTarget.getBoundingClientRect().top - offset.y) / scale) / meterToHtmlScale;
@@ -73,6 +72,33 @@ const Canvas: React.FC<CanvasProps> = observer(({ nodesList, onSelectionChanged 
     });
   };
 
+  const saveContextLocation = (e: React.MouseEvent) => {
+    const snapSize = gridSize / meterToHtmlScale / scale;
+    const snapXPosition = snapSize * Math.floor(mousePosition.x / snapSize);
+    const snapYPosition = snapSize * Math.floor(mousePosition.y / snapSize);
+
+    const currentContextLocation = {
+      x: mousePosition.x,
+      y: mousePosition.y,
+      snapX: snapXPosition,
+      snapY: snapYPosition,
+      snapSize: snapSize
+    };
+
+    setContextLocation(currentContextLocation);
+    console.log("Context location saved:", currentContextLocation);
+  }
+
+  function addObject() {
+    const newNode = new WorldNode("New Object", "An object", "A newly created object.");
+    newNode.coordinates.x = contextLocation.snapX;
+    newNode.coordinates.y = contextLocation.snapY;
+    newNode.dimensions.width = contextLocation.snapSize;
+    newNode.dimensions.depth = contextLocation.snapSize;
+
+    appContext.currentStory?.addNode(newNode);
+  }
+
   function calculateCanvasSize() {
     const left = Math.min(...nodesList.map(node => node.node.coordinates.x)) * meterToHtmlScale;
     const top = Math.min(...nodesList.map(node => node.node.coordinates.y)) * meterToHtmlScale;
@@ -86,7 +112,7 @@ const Canvas: React.FC<CanvasProps> = observer(({ nodesList, onSelectionChanged 
       height: bottom - top
     });
   }
-
+  
   useEffect(() => {
     const nearest2Exponent = Math.round(Math.log2(1 / scale));
     const gridUnit = Math.pow(2, nearest2Exponent);
@@ -103,6 +129,7 @@ const Canvas: React.FC<CanvasProps> = observer(({ nodesList, onSelectionChanged 
       className="w-full h-full overflow-hidden relative bg-foreground/10 rounded-md"
       onWheel={handleWheel}
       onMouseMove={handleMouseMove}
+      onContextMenu={saveContextLocation}
     >
       <ContextMenu>
         <ContextMenuTrigger>
@@ -147,7 +174,7 @@ const Canvas: React.FC<CanvasProps> = observer(({ nodesList, onSelectionChanged 
         </ContextMenuTrigger>
 
         <ContextMenuContent>
-          <ContextMenuItem>Add object</ContextMenuItem>
+          <ContextMenuItem onSelect={addObject}>Add object</ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
 

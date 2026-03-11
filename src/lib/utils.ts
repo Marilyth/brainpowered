@@ -1,4 +1,4 @@
-import { Action } from "@/app/classes/models/base/Action";
+import { Interaction } from "@/app/classes/models/base/Interaction";
 import { Story } from "@/app/classes/models/Story";
 import { deserialize, serialize } from "@/app/classes/utility/JsonHelper";
 import { clsx, type ClassValue } from "clsx"
@@ -45,7 +45,7 @@ export function saveStory(){
  * @param actions The possible actions.
  * @param input The user input.
  */
-export function parseUserInput(actions: Action[], input: string): Action | null {
+export function parseUserInput(actions: Interaction[], input: string): Interaction | null {
     const normalizedInput: string = input.toLowerCase().replaceAll(/[^a-z0-9 ]/g, "");
     const tokens: string[] = normalizedInput.split(" ");
 

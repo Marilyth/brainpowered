@@ -1,5 +1,6 @@
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 import { WorldNode } from "./WorldNode";
+import { makeAutoObservable } from "mobx";
 
 @RegisterClass
 export class Story {
@@ -14,6 +15,7 @@ export class Story {
     constructor(name: string, description: string) {
         this.name = name;
         this.description = description;
+        makeAutoObservable(this);
     }
 
     /**

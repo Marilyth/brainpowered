@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./classes/views/AppSidebar";
 import { useTheme } from "next-themes";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-[100dvh] overflow-hidden`}
       >
         <ThemeProvider
             attribute="class"
@@ -36,11 +37,13 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SidebarProvider>
-              <AppSidebar></AppSidebar>
-              <SidebarTrigger></SidebarTrigger>
-                {children}
-            </SidebarProvider>
+            <TooltipProvider>
+              <SidebarProvider>
+                <AppSidebar></AppSidebar>
+                <SidebarTrigger></SidebarTrigger>
+                  {children}
+              </SidebarProvider>
+            </TooltipProvider>
           </ThemeProvider>
       </body>
     </html>

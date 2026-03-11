@@ -11,6 +11,8 @@ class AsyncEventEmitter extends EventEmitter {
                 await returnValue;
             }
         }
+
+        console.log(`Event emitted: ${String(event)}`, ...args);
     }
 }
 

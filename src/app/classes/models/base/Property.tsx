@@ -1,7 +1,13 @@
 import { events } from "@/app/classes/utility/Events";
 import { RegisterClass } from "@/app/classes/utility/JsonHelper";
 import { WorldNodeProperty } from "./WorldNodeProperty";
-import { makeObservable } from "mobx";
+import { action, computed, makeAutoObservable, makeObservable, observable } from "mobx";
+
+export enum PropertyType {
+    Text = "text",
+    Number = "number",
+    Boolean = "boolean",
+}
 
 @RegisterClass
 export class Property extends WorldNodeProperty {
@@ -11,10 +17,15 @@ export class Property extends WorldNodeProperty {
         super(nodeId);
         this._value = value;
 
-        makeObservable(this, {
-            _value: true,
-        } as any);
+        makeObservable<Property, "_value">(this, {
+            _value: observable,
+            value: computed,
+            propertyType: observable,
+            name: observable,
+        });
     }
+
+    public propertyType: PropertyType = PropertyType.Text;
 
     public get value(): any {
         return this._value;

@@ -1,7 +1,7 @@
 "use client";
 
 import Canvas from "@/app/classes/views/Canvas";
-import { ObjectSettings } from "@/app/classes/views/ObjectSettings";
+import { ObjectSettings } from "@/app/classes/views/settings/ObjectSettings";
 import { useState } from "react";
 import {
   ResizableHandle,
@@ -36,8 +36,8 @@ export const StoryEditor = observer(() => {
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={30}>
-        <div className="p-4 h-full">
-          <div className="flex flex-row whitespace-pre justify-center mb-4">
+        <div className="flex flex-col h-full">
+          <div className="flex whitespace-pre justify-center my-4">
             Editing <div className="text-yellow-500">{appContext.currentStory.name}</div>
           </div>
           {selectedNode != null && (

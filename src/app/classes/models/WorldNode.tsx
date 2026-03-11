@@ -1,4 +1,4 @@
-import { Action } from "./base/Action";
+import { Interaction as Interaction } from "./base/Interaction";
 import { Coordinates } from "./base/Coordinates";
 import { Sound } from "./base/Sound";
 import { Dimensions } from "./base/Dimensions";
@@ -39,9 +39,9 @@ export class WorldNode {
     public description: string;
     public color: string = "#AAFFFF";
 
-    public properties: { [key: string]: Property } = {};
-    public reactions: { [key: string]: Reaction } = {};
-    public actions: { [key: string]: Action } = {};
+    public properties: Property[] = [];
+    public reactions: Reaction[] = [];
+    public interactions: Interaction[] = [];
     public coordinates: Coordinates;
     public dimensions: Dimensions;
 
@@ -55,16 +55,16 @@ export class WorldNode {
     }
 
     private updateIdInChildren(){
-        for (const actionName in this.actions) {
-            this.actions[actionName].nodeId = this.id;
+        for (const interaction of this.interactions) {
+            interaction.nodeId = this.id;
         }
 
-        for (const reactionName in this.reactions) {
-            this.reactions[reactionName].nodeId = this.id;
+        for (const reaction of this.reactions) {
+            reaction.nodeId = this.id;
         }
 
-        for (const propertyName in this.properties) {
-            this.properties[propertyName].nodeId = this.id;
+        for (const property of this.properties) {
+            property.nodeId = this.id;
         }
 
         this.dimensions.nodeId = this.id;
@@ -77,7 +77,7 @@ export class WorldNode {
      */
     private addCheckAction() {
         const checkSynonyms: string[] = ["Inspect", "Assess", "Analyze", "Probe", "Scan", "Investigate", "Survey", "Examine", "Check", "Explore", "Look"];
-        this.actions["Inspect"] = new Action(checkSynonyms, "${[this.description, ...this.children.map((c) => c.context)].join(\" \")}", this._id);
+        this.interactions["Inspect"] = new Interaction(checkSynonyms, "${[this.description, ...this.children.map((c) => c.context)].join(\" \")}", this._id);
     }
 
     /**

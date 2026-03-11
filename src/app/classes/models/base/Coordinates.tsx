@@ -30,7 +30,6 @@ export class Coordinates extends WorldNodeProperty {
 
     public set x(value: number) {
         this._x = value;
-        console.log("X set to " + value);
         this.notifyCoordinatesChanged();
     }
 

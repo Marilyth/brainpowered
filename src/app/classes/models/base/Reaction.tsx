@@ -11,7 +11,6 @@ export class Reaction extends WorldNodeProperty {
     public constructor(public eventName: string, public response: string, nodeId: string) {
         super(nodeId);
         this.callable = this.handleReaction.bind(this);
-        this.register();
 
         makeObservable(this, {
             eventName: true,

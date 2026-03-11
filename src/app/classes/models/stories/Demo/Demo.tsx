@@ -1,5 +1,5 @@
 import { Observer } from "../../base/Observer";
-import { Action } from "../../base/Action";
+import { Interaction } from "../../base/Interaction";
 import { Story } from "../../Story";
 import { WorldNode } from "../../WorldNode";
 
