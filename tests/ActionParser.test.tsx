@@ -1,6 +1,6 @@
-import TravelNode from "../src/app/classes/models/world/base/TravelNode";
-import Action from "../src/app/classes/models/world/Action";
-import { parseUserInput } from "../src/app/classes/models/world/ActionParser";
+import TravelNode from "../src/classes/models/world/base/TravelNode";
+import Action from "../src/classes/models/world/Action";
+import { parseUserInput } from "../src/classes/models/world/ActionParser";
 import { WorldNode } from "@/app/classes/models/world/base/WorldNode";
 
 describe("parseUserInput", () => {

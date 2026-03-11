@@ -36,7 +36,7 @@
     ".next/types/**/*.ts",
     "next-env.d.ts",
     "docs/types/**/*.ts"
-, "src/app/classes/models/world/stories/Demo/Demo.js"  ],
+, "src/classes/models/world/stories/Demo/Demo.js"  ],
   "exclude": [
     "node_modules"
   ]
